@@ -1,6 +1,6 @@
 # red_tetris
 
-Arborescence
+Exemple d'arborescence:
 
 red-tetris/
 │
@@ -126,3 +126,16 @@ red-tetris/
 ├── .env
 ├── docker-compose.yml
 └── README.md
+
+
+Ordre de développement logique
+
+Serveur de base — Express + Socket.io qui tourne
+Parsing de l'URL — extraire room et player du hash
+Classes serveur — Piece, Player, Room, Game
+Logique Tetris — grille, déplacement, rotation, collision, lignes
+Communication Socket — définir les events (move, drop, line_added, game_over…)
+Front-end — afficher la grille, gérer les inputs clavier
+Redux — state management (grille, score, pièce courante…)
+Multijoueur — shadow/spectre, pénalités, conditions de victoire
+Tests — viser 70%+ de coverage

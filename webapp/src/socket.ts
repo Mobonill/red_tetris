@@ -1,30 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   index.ts                                           :+:      :+:    :+:   */
+/*   socket.ts                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/03/05 13:37:14 by morgane           #+#    #+#             */
-/*   Updated: 2026/03/05 15:41:34 by morgane          ###   ########.fr       */
+/*   Created: 2026/03/05 15:57:11 by morgane           #+#    #+#             */
+/*   Updated: 2026/03/05 15:59:31 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import Express from "express";
-import http from "http";
-import { Server } from "socket.io";
-import { PORT } from "./config/env.js";
+import { io } from "socket.io-client";
 
-const app = Express();
-const server = http.createServer(app);
+const socket = io(`http://localhost:${import.meta.env.VITE_BACKEND_PORT}`);
 
-const io = new Server(server);
-
-app.get("/", (req, res) => {
-  res.send("Server created");
-});
-
-
-server.listen(PORT, () => {
-  console.log(`Serveur lauch on http://localhost:${PORT}`);
-});
+export default socket;
