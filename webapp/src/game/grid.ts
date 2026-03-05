@@ -6,11 +6,11 @@
 /*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/05 16:06:39 by morgane           #+#    #+#             */
-/*   Updated: 2026/03/05 17:35:22 by morgane          ###   ########.fr       */
+/*   Updated: 2026/03/05 19:19:40 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import { Grid2D } from "../types/types.js";
+import type { Grid2D } from "./types";
 
 const ROWS = 20;
 const COLS = 10;
