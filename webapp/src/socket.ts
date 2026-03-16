@@ -12,6 +12,12 @@
 
 import { io } from "socket.io-client";
 
-const socket = io(`http://localhost:${import.meta.env.VITE_BACKEND_PORT}`);
+// By leaving the URL empty, Socket.IO automatically connects to the current domain 
+// (http://localhost:80). Traefik intercepts the /socket.io/ path and sends it 
+// straight to your Express container!
+const socket = io({
+  path: '/socket.io/',
+  autoConnect: true
+});
 
 export default socket;
