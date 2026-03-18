@@ -6,7 +6,7 @@
 /*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/05 18:37:31 by morgane           #+#    #+#             */
-/*   Updated: 2026/03/18 17:09:58 by morgane          ###   ########.fr       */
+/*   Updated: 2026/03/18 18:57:02 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@ import { Grid } from "../game/grid";
 import { Pieces } from "../game/pieces";
 import type { PieceType } from "../game/types";
 // import { Grid2D } from "../game/types";
+
+const TIME = 1500;
 
 export default function Game() {
   const [grid, setGrid] = useState(new Grid());
@@ -69,24 +71,44 @@ export default function Game() {
   );
 
   useEffect(() => {
+    const timer = setInterval(() => {
+      const newPiece = piece.clone();
+      newPiece.moveDown();
+      if (isMoveValid(newPiece)) {
+        setPiece(newPiece);
+      } else {
+          grid.lockPiece(piece);
+          grid.clearLines();
+          setGrid(grid.clone());
+          setPiece(new Pieces());
+        }
+    }, TIME);
     const handleKey = (e: KeyboardEvent) => {
       const newPiece = piece.clone();
 
       switch (e.key) {
         case "ArrowDown":
           newPiece.moveDown();
-          if (!isMoveValid(newPiece.clone())) newPiece.moveUp();
+          if (!isMoveValid(newPiece)) newPiece.moveUp();
           break;
 
         case "ArrowLeft":
           newPiece.moveLeft();
-          if (!isMoveValid(newPiece.clone())) newPiece.moveRight();
+          if (!isMoveValid(newPiece)) newPiece.moveRight();
           break;
 
         case "ArrowRight":
           newPiece.moveRight();
-          if (!isMoveValid(newPiece.clone())) newPiece.moveLeft();
+          if (!isMoveValid(newPiece)) newPiece.moveLeft();
           break;
+
+        case "ArrowUp":
+          newPiece.rotate();
+          if(!isMoveValid(newPiece)) newPiece.unrotate();
+          break;
+        
+        case "p": 
+        
       }
       setPiece(newPiece);
     };
@@ -94,6 +116,7 @@ export default function Game() {
     window.addEventListener("keydown", handleKey);
 
     return () => {
+      clearInterval(timer);
       window.removeEventListener("keydown", handleKey); // cleanup
     };
   }, [piece, isMoveValid]); // to recreate listener when the piece change and not reuse the initial piece.

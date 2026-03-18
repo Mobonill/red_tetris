@@ -6,12 +6,12 @@
 /*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/05 16:06:39 by morgane           #+#    #+#             */
-/*   Updated: 2026/03/18 17:04:23 by morgane          ###   ########.fr       */
+/*   Updated: 2026/03/18 19:14:50 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import type { Pieces } from "./pieces";
-import type { Grid2D } from "./types";
+import type { Grid2D, Cell } from "./types";
 
 const ROWS = 20;
 const COLS = 10;
@@ -41,6 +41,28 @@ export class Grid {
     return this.grid;
   }
 
+  lockPiece(piece: Pieces): void {
+    const shape = piece.getCurrentShape();
+    const y = piece.position.y;
+    const x = piece.position.x;
+
+    shape.forEach((row, dy) => {
+      row.forEach((cell, dx) => {
+        if (cell !== 0) this.grid[y + dy][x + dx] = cell;
+      });
+    });
+  }
+
+  clone(): Grid {
+    const g = new Grid(this.rows, this.cols);
+    g.setGrid(this.getGrid());
+    return g;
+  }
+
+  setGrid(newGrid: Grid2D): void {
+    this.grid = newGrid;
+  }
+
   isValidPosition(x: number, y: number): boolean {
     if (
       x >= 0 &&
@@ -52,6 +74,14 @@ export class Grid {
       return true;
     return false;
   }
-}
 
-const grid = new Grid();
+  clearLines() {
+    const newGrid = this.grid.filter((row) => !row.every((cell) => cell !== 0));
+    const cleanedLines = this.rows - newGrid.length;
+    const addLines = Array.from({ length: cleanedLines }, () =>
+      Array.from({ length: this.cols }, (): Cell => 0),
+    );
+
+    this.grid = [...addLines, ...newGrid];
+  }
+}
