@@ -6,12 +6,12 @@
 /*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/05 16:06:39 by morgane           #+#    #+#             */
-/*   Updated: 2026/03/18 18:34:20 by morgane          ###   ########.fr       */
+/*   Updated: 2026/03/18 19:14:50 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import type { Pieces } from "./pieces";
-import type { Grid2D } from "./types";
+import type { Grid2D, Cell } from "./types";
 
 const ROWS = 20;
 const COLS = 10;
@@ -73,5 +73,15 @@ export class Grid {
     )
       return true;
     return false;
+  }
+
+  clearLines() {
+    const newGrid = this.grid.filter((row) => !row.every((cell) => cell !== 0));
+    const cleanedLines = this.rows - newGrid.length;
+    const addLines = Array.from({ length: cleanedLines }, () =>
+      Array.from({ length: this.cols }, (): Cell => 0),
+    );
+
+    this.grid = [...addLines, ...newGrid];
   }
 }

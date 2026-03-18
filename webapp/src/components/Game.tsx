@@ -6,7 +6,7 @@
 /*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/05 18:37:31 by morgane           #+#    #+#             */
-/*   Updated: 2026/03/18 18:42:14 by morgane          ###   ########.fr       */
+/*   Updated: 2026/03/18 18:57:02 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,7 @@ export default function Game() {
         setPiece(newPiece);
       } else {
           grid.lockPiece(piece);
+          grid.clearLines();
           setGrid(grid.clone());
           setPiece(new Pieces());
         }
@@ -105,6 +106,8 @@ export default function Game() {
           newPiece.rotate();
           if(!isMoveValid(newPiece)) newPiece.unrotate();
           break;
+        
+        case "p": 
         
       }
       setPiece(newPiece);
