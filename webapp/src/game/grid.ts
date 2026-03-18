@@ -6,7 +6,7 @@
 /*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/05 16:06:39 by morgane           #+#    #+#             */
-/*   Updated: 2026/03/18 17:04:23 by morgane          ###   ########.fr       */
+/*   Updated: 2026/03/18 18:34:20 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,28 @@ export class Grid {
     return this.grid;
   }
 
+  lockPiece(piece: Pieces): void {
+    const shape = piece.getCurrentShape();
+    const y = piece.position.y;
+    const x = piece.position.x;
+
+    shape.forEach((row, dy) => {
+      row.forEach((cell, dx) => {
+        if (cell !== 0) this.grid[y + dy][x + dx] = cell;
+      });
+    });
+  }
+
+  clone(): Grid {
+    const g = new Grid(this.rows, this.cols);
+    g.setGrid(this.getGrid());
+    return g;
+  }
+
+  setGrid(newGrid: Grid2D): void {
+    this.grid = newGrid;
+  }
+
   isValidPosition(x: number, y: number): boolean {
     if (
       x >= 0 &&
@@ -53,5 +75,3 @@ export class Grid {
     return false;
   }
 }
-
-const grid = new Grid();
