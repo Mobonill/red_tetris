@@ -6,7 +6,7 @@
 /*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/05 18:37:31 by morgane           #+#    #+#             */
-/*   Updated: 2026/03/18 18:57:02 by morgane          ###   ########.fr       */
+/*   Updated: 2026/03/18 22:36:56 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ const TIME = 1500;
 export default function Game() {
   const [grid, setGrid] = useState(new Grid());
   const [piece, setPiece] = useState(new Pieces());
+  const [gameOver, setGameOver] = useState(false);
 
   console.log(piece);
 
@@ -72,16 +73,23 @@ export default function Game() {
 
   useEffect(() => {
     const timer = setInterval(() => {
+      if(gameOver)
+        return;
+      
       const newPiece = piece.clone();
       newPiece.moveDown();
+      
       if (isMoveValid(newPiece)) {
         setPiece(newPiece);
       } else {
-          grid.lockPiece(piece);
-          grid.clearLines();
-          setGrid(grid.clone());
-          setPiece(new Pieces());
-        }
+        grid.lockPiece(piece);
+        grid.clearLines();
+        setGrid(grid.clone());
+        const newPiece = new Pieces();
+        if(!isMoveValid(newPiece))
+          setGameOver(true);
+        setPiece(newPiece);
+      }
     }, TIME);
     const handleKey = (e: KeyboardEvent) => {
       const newPiece = piece.clone();
@@ -104,11 +112,10 @@ export default function Game() {
 
         case "ArrowUp":
           newPiece.rotate();
-          if(!isMoveValid(newPiece)) newPiece.unrotate();
+          if (!isMoveValid(newPiece)) newPiece.unrotate();
           break;
-        
-        case "p": 
-        
+
+        case "p":
       }
       setPiece(newPiece);
     };
@@ -119,25 +126,35 @@ export default function Game() {
       clearInterval(timer);
       window.removeEventListener("keydown", handleKey); // cleanup
     };
-  }, [piece, isMoveValid]); // to recreate listener when the piece change and not reuse the initial piece.
+  }, [piece, isMoveValid, grid, gameOver]); // to recreate listener when the piece change and not reuse the initial piece.
+
+  const restart = () => {
+    setGrid(new Grid());
+    setPiece(new Pieces());
+    setGameOver(false);
+  }
 
   return (
-    <div className="grid">
-      {getMergedGrid().map((row, y) => (
-        <div key={y} className="row">
-          {row.map((cell, x) => (
-            <div
-              key={x}
-              className="cell"
-              style={{
-                backgroundColor: cell
-                  ? Pieces.COLORS[cell as PieceType]
-                  : "black",
-              }}
-            />
-          ))}
-        </div>
-      ))}
+    <div className="game-container" >
+      <div className="grid">
+        {getMergedGrid().map((row, y) => (
+          <div key={y} className="row">
+            {row.map((cell, x) => (
+              <div
+                key={x}
+                className="cell"
+                style={{
+                  backgroundColor: cell
+                    ? Pieces.COLORS[cell as PieceType]
+                    : "black",
+                }}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+      {gameOver && <div className="game-over">Game Over ! </div>}
+      {gameOver && <button onClick={restart}>Rejouer</button>}
     </div>
   );
 }
