@@ -6,10 +6,11 @@
 /*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/05 16:06:39 by morgane           #+#    #+#             */
-/*   Updated: 2026/03/05 19:19:40 by morgane          ###   ########.fr       */
+/*   Updated: 2026/03/18 17:04:23 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+import type { Pieces } from "./pieces";
 import type { Grid2D } from "./types";
 
 const ROWS = 20;
@@ -38,6 +39,18 @@ export class Grid {
 
   getGrid(): Grid2D {
     return this.grid;
+  }
+
+  isValidPosition(x: number, y: number): boolean {
+    if (
+      x >= 0 &&
+      x < this.cols &&
+      y >= 0 &&
+      y < this.rows &&
+      this.grid[y][x] === 0
+    )
+      return true;
+    return false;
   }
 }
 
