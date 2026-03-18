@@ -6,7 +6,7 @@
 /*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/05 16:54:51 by morgane           #+#    #+#             */
-/*   Updated: 2026/03/18 16:00:37 by morgane          ###   ########.fr       */
+/*   Updated: 2026/03/18 17:07:23 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,10 @@ export class Pieces {
 
   moveDown() {
     this.position.y += 1;
+  }
+
+  moveUp() {
+    this.position.y -= 1;
   }
   
   getCurrentShape(): Grid2D {
