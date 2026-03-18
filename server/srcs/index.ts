@@ -18,13 +18,15 @@ import { PORT } from "./config/env.js";
 const app = Express();
 const server = http.createServer(app);
 
+// Socket.io setup (CORS might be needed later, but this is fine for now)
 const io = new Server(server);
 
-app.get("/", (req, res) => {
-  res.send("Server created");
+// 👇 Changed from "/" to "/api" so it matches Traefik
+app.get("/api", (req, res) => {
+  res.send("Server created and routed through Traefik!");
 });
 
-
-server.listen(PORT, () => {
-  console.log(`Serveur lauch on http://localhost:${PORT}`);
+// 👇 Added "0.0.0.0" to ensure Docker exposes it correctly
+server.listen(Number(PORT), "0.0.0.0", () => {
+  console.log(`Server launched on port ${PORT}`);
 });
