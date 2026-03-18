@@ -6,18 +6,18 @@
 /*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/05 16:54:51 by morgane           #+#    #+#             */
-/*   Updated: 2026/03/05 18:40:47 by morgane          ###   ########.fr       */
+/*   Updated: 2026/03/18 16:00:37 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import type { PieceType, Grid2D, Position } from "./types";
 
 export class Pieces {
-  private type: PieceType;
-  private color: string;
-  position: Position;
-  private rotation: number;
-  private shapes: Grid2D[];
+  protected type: PieceType;
+  protected color: string;
+  public position: Position;
+  protected rotation: number;
+  protected shapes: Grid2D[];
 
   constructor() {
     const index = Math.floor(Math.random() * Pieces.TYPES.length);
@@ -41,8 +41,9 @@ export class Pieces {
   }
 
   moveDown() {
-    this.position.y -= 1;
+    this.position.y += 1;
   }
+  
   getCurrentShape(): Grid2D {
     return this.shapes[this.rotation];
   }
@@ -55,6 +56,17 @@ export class Pieces {
   }
   getPosition(): Position {
     return this.position;
+  }
+
+  clone(): Pieces {
+    const p = new Pieces();
+    p.position = { ...this.position };
+    p.color = this.color;
+    p.type = this.type;
+    p.shapes = [ ...this.shapes];
+    p.rotation = this.rotation;
+    
+    return p;
   }
 
   static readonly TYPES: PieceType[] = ["I", "J", "L", "O", "S", "T", "Z"];
@@ -163,4 +175,5 @@ export class Pieces {
     ],
   };
 }
+
 const pieces = new Pieces();
