@@ -6,7 +6,7 @@
 /*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/05 18:37:31 by morgane           #+#    #+#             */
-/*   Updated: 2026/03/18 22:36:56 by morgane          ###   ########.fr       */
+/*   Updated: 2026/03/18 23:06:17 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,12 +73,11 @@ export default function Game() {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      if(gameOver)
-        return;
-      
+      if (gameOver) return;
+
       const newPiece = piece.clone();
       newPiece.moveDown();
-      
+
       if (isMoveValid(newPiece)) {
         setPiece(newPiece);
       } else {
@@ -86,14 +85,13 @@ export default function Game() {
         grid.clearLines();
         setGrid(grid.clone());
         const newPiece = new Pieces();
-        if(!isMoveValid(newPiece))
-          setGameOver(true);
+        if (!isMoveValid(newPiece)) setGameOver(true);
         setPiece(newPiece);
       }
     }, TIME);
     const handleKey = (e: KeyboardEvent) => {
       const newPiece = piece.clone();
-
+      console.log(e.key);
       switch (e.key) {
         case "ArrowDown":
           newPiece.moveDown();
@@ -115,7 +113,17 @@ export default function Game() {
           if (!isMoveValid(newPiece)) newPiece.unrotate();
           break;
 
-        case "p":
+        case " ":
+          while (isMoveValid(newPiece)) {
+            newPiece.moveDown();
+          }
+          newPiece.moveUp();
+          grid.lockPiece(newPiece);
+          grid.clearLines();
+          setGrid(grid.clone());
+          setPiece(new Pieces());
+        
+        // case "p":
       }
       setPiece(newPiece);
     };
@@ -132,10 +140,10 @@ export default function Game() {
     setGrid(new Grid());
     setPiece(new Pieces());
     setGameOver(false);
-  }
+  };
 
   return (
-    <div className="game-container" >
+    <div className="game-container">
       <div className="grid">
         {getMergedGrid().map((row, y) => (
           <div key={y} className="row">
@@ -153,7 +161,7 @@ export default function Game() {
           </div>
         ))}
       </div>
-      {gameOver && <div className="game-over">Game Over ! </div>}
+      {gameOver && <div className="game-over">GAME OVER</div>}
       {gameOver && <button onClick={restart}>Rejouer</button>}
     </div>
   );
