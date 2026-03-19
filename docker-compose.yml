@@ -5,19 +5,20 @@ services:
     container_name: traefik
     restart: unless-stopped
     environment:
-      # This forces Traefik to use a modern protocol
-      - DOCKER_API_VERSION=1.41 
+      - ./.env
     command:
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.network=red_tetris_network"
-      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.address=:8080"
+      - "--entrypoints.traefik.address=:8081"
     ports:
-      - "80:80"
+      # - "80:8080"
       - "8080:8080"
+      - "8081:8081"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${XDG_RUNTIME_DIR}/docker.sock:/var/run/docker.sock:ro
     networks:
       - red_tetris_network
 
