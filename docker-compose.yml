@@ -18,7 +18,7 @@ services:
       - "8080:8080"
       - "8081:8081"
     volumes:
-      - ${XDG_RUNTIME_DIR}/docker.sock:/var/run/docker.sock:ro
+      - ${DOCKER_SOCK}:/var/run/docker.sock:ro
     networks:
       - red_tetris_network
 
