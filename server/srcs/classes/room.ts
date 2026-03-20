@@ -6,12 +6,13 @@
 /*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/20 14:16:35 by morgane           #+#    #+#             */
-/*   Updated: 2026/03/20 15:27:47 by morgane          ###   ########.fr       */
+/*   Updated: 2026/03/20 16:51:47 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { Player } from "./player.js";
 import { PIECE_TYPES, PieceType } from "./types.js";
+import { Pieces } from "./pieces.js";
 
 export abstract class Room {
   readonly id: string;
@@ -45,5 +46,9 @@ export abstract class Room {
     return this.bag[this.bagIndex++];
   }
 
-  abstract start(): void;
+  spawnPiece(): Pieces {
+    const type = this.getNextPiece();
+    console.log("next piece:", type);
+    return Pieces.fromType(type);
+  }
 }
