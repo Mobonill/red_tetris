@@ -6,11 +6,11 @@
 /*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/05 18:37:31 by morgane           #+#    #+#             */
-/*   Updated: 2026/03/18 23:06:17 by morgane          ###   ########.fr       */
+/*   Updated: 2026/03/20 10:05:44 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import "../styles/Game.css";
 import { Grid } from "../game/grid";
 import { Pieces } from "../game/pieces";
@@ -23,6 +23,7 @@ export default function Game() {
   const [grid, setGrid] = useState(new Grid());
   const [piece, setPiece] = useState(new Pieces());
   const [gameOver, setGameOver] = useState(false);
+  const isLocking = useRef(false);
 
   console.log(piece);
 
@@ -53,12 +54,12 @@ export default function Game() {
       const result = shape.every((row, dy) => {
         return row.every((cell, dx) => {
           if (cell !== 0) {
-            console.log(
-              "checking",
-              x + dx,
-              y + dy,
-              grid.isValidPosition(x + dx, y + dy),
-            );
+            // console.log(
+            //   "checking",
+            //   x + dx,
+            //   y + dy,
+            //   grid.isValidPosition(x + dx, y + dy),
+            // );
             if (!grid.isValidPosition(x + dx, y + dy)) return false;
           }
           return true;
@@ -81,17 +82,25 @@ export default function Game() {
       if (isMoveValid(newPiece)) {
         setPiece(newPiece);
       } else {
+        if (isLocking.current) return;
+        isLocking.current = true;
         grid.lockPiece(piece);
         grid.clearLines();
         setGrid(grid.clone());
-        const newPiece = new Pieces();
-        if (!isMoveValid(newPiece)) setGameOver(true);
-        setPiece(newPiece);
+        const nextPiece = new Pieces();
+        if (!isMoveValid(nextPiece)) {
+          setGameOver(true);
+          console.log(gameOver);
+          isLocking.current = false;
+          return;
+        }
+        setPiece(nextPiece);
+        isLocking.current = false;
       }
     }, TIME);
     const handleKey = (e: KeyboardEvent) => {
       const newPiece = piece.clone();
-      console.log(e.key);
+
       switch (e.key) {
         case "ArrowDown":
           newPiece.moveDown();
@@ -110,10 +119,22 @@ export default function Game() {
 
         case "ArrowUp":
           newPiece.rotate();
-          if (!isMoveValid(newPiece)) newPiece.unrotate();
+          if (!isMoveValid(newPiece)) {
+            newPiece.moveLeft();
+            if (!isMoveValid(newPiece)) {
+              newPiece.moveRight();
+              newPiece.moveRight();
+              if (!isMoveValid(newPiece)) {
+                newPiece.moveLeft();
+                newPiece.unrotate();
+              }
+            }
+          }
           break;
 
-        case " ":
+        case " ": {
+          if (isLocking.current || gameOver) return;
+          isLocking.current = true;
           while (isMoveValid(newPiece)) {
             newPiece.moveDown();
           }
@@ -121,8 +142,13 @@ export default function Game() {
           grid.lockPiece(newPiece);
           grid.clearLines();
           setGrid(grid.clone());
-          setPiece(new Pieces());
-        
+          const nextPiece = new Pieces();
+          if (!isMoveValid(nextPiece)) setGameOver(true);
+          setPiece(nextPiece);
+          isLocking.current = false;
+          return;
+        }
+
         // case "p":
       }
       setPiece(newPiece);
