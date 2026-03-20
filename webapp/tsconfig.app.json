@@ -24,5 +24,10 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": [
+    "src",
+    "../server/srcs/classes/grid.ts",
+    "../server/srcs/classes/pieces.ts",
+    "../server/srcs/classes/types.ts"
+  ]
 }
