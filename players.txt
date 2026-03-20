@@ -1,0 +1,9 @@
+rooms
+2 players / room
+1st player = host (start, restart)
+if 1st leave, 2nd becomes host
+if player leave, other wins
+scoring
+
+home page (play, room) for testing
+
