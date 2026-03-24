@@ -1,22 +1,26 @@
-// import { useState } from 'react'
-// import reactLogo from './assets/react.svg'
-// import viteLogo from '/vite.svg'
-import './App.css'
-import { Routes, Route } from "react-router-dom";
-import Game  from "./components/Game"
+import { useState } from 'react';
+import './App.css';
+import Solo from "./solo.tsx";
+import Multi from "./multi.tsx";
 
 function App() {
+    const [page, setPage] = useState('home');
 
-  return (
-    <>
-      <div>
-        <Routes>
-          <Route path="/" element={<Game />} />
-        </Routes>
-      </div>
-        
-    </>
-  )
+    if (page === 'solo') {
+        return <Solo onBack={() => setPage('home')} />;
+    }
+    if (page === 'multi') {
+        return <Multi onBack={() => setPage('home')} />;
+    }
+
+    return (
+        <div className="app-container">
+            <div className="button-group">
+                <button className="menu-button" onClick={() => setPage('solo')}>Solo</button>
+                <button className="menu-button" onClick={() => setPage('multi')}>Create Room</button>
+            </div>
+        </div>
+    );
 }
 
-export default App
+export default App;

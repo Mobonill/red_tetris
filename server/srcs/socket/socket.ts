@@ -14,6 +14,9 @@ import { Server } from "socket.io";
 
 import { Player } from "../classes/player.js";
 import { SoloGame } from "../classes/soloGame.js";
+import { MultiGame } from "../classes/multiGame.js";
+
+const activeMultiRooms = new Map<string, MultiGame>();
 
 export function initSocket(io: Server) {
   io.on("connection", (socket) => {
@@ -43,5 +46,23 @@ export function initSocket(io: Server) {
         console.log("user disconnected: ", socket.id);
       });
     });
+
+
+    socket.on("join_multi", (data: { name: string; roomName: string }) => {
+
+      let room = activeMultiRooms.get(data.roomName);
+      if (!room) {
+        room = new MultiGame(data.roomName);
+        activeMultiRooms.set(data.roomName, room);
+      }
+
+      const player = new Player(socket.id, data.name);
+      room.players.push(player);
+
+      socket.join(data.roomName);
+      socket.emit("room_joined", data.roomName);
+    });
+
+
   });
 }

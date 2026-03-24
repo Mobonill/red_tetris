@@ -21,6 +21,7 @@ export class Player {
   piece: Pieces | null = null;;
   score: number;
   isConnected: boolean;
+  pieceIndex: number;
 
   constructor(socketId: string, name: string) {
     this.id = socketId;
@@ -29,5 +30,6 @@ export class Player {
     this.score = 0;
     this.isConnected = true;
     this.role = "guest";
+    this.pieceIndex = 0;
   }
 }
