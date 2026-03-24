@@ -6,25 +6,30 @@
 /*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/05 18:37:31 by morgane           #+#    #+#             */
-/*   Updated: 2026/03/20 12:02:38 by morgane          ###   ########.fr       */
+/*   Updated: 2026/03/20 16:11:45 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import socket from "../socket";
 import "../styles/Game.css";
 import { Pieces } from "../../../server/srcs/classes/pieces";
 import type { Grid2D, PieceType } from "../../../server/srcs/classes/types";
 import type { PieceData } from "../types/PieceData";
 
-
 export default function Game() {
   const [grid, setGrid] = useState<Grid2D>([]);
   const [pieceData, setPieceData] = useState<PieceData | null>(null);
   const [gameOver, setGameOver] = useState(false);
-
+  const hasJoined = useRef(false); // to not have x2 components like 2 solo games
+  
   // receive state and put it on screen
   useEffect(() => {
+    if (hasJoined.current) return;
+    hasJoined.current = true;
+
+    socket.emit("join_solo", { name: "Morgan" });
+
     socket.on("state", (data) => {
       setGrid(data.grid);
       setPieceData(data);
@@ -32,15 +37,12 @@ export default function Game() {
 
     socket.on("game_over", () => {
       setGameOver(true);
-    })
+    });
   }, []);
-
-  // console.log(piece);
 
   const getMergedGrid = () => {
     const merged = grid.map((row) => [...row]);
-    if (!pieceData)
-      return merged;
+    if (!pieceData) return merged;
     const shape = pieceData.shape;
 
     shape.forEach((row, dy) => {
@@ -57,8 +59,6 @@ export default function Game() {
     return merged;
   };
 
-  
-
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       socket.emit("move", e.key);
@@ -66,7 +66,6 @@ export default function Game() {
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, []);
-
 
   const restart = () => {
     socket.disconnect();
