@@ -2,7 +2,11 @@ import './solo.css'
 import { Routes, Route } from "react-router-dom";
 import Game  from "./components/Game"
 
-function Multi() {
+interface MultiProps {
+  onBack: () => void;
+}
+
+function Multi({ onBack }: MultiProps) {
 
   return (
     <>

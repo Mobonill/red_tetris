@@ -51,17 +51,51 @@ export function initSocket(io: Server) {
     socket.on("join_multi", (data: { name: string; roomName: string }) => {
 
       let room = activeMultiRooms.get(data.roomName);
+
+      if (room && room.players.length >= 2) {
+        socket.emit("error", "This room is already full.");
+        console.log(`user ${socket.id} tried connect to room ${data.roomName} but room is already full`);
+        return;
+      }
+
       if (!room) {
         room = new MultiGame(data.roomName);
         activeMultiRooms.set(data.roomName, room);
       }
 
-      const player = new Player(socket.id, data.name);
+      const isHost = room.players.length === 0;
+      const player = new Player(socket.id, data.name, isHost);
       room.players.push(player);
 
       socket.join(data.roomName);
       socket.emit("room_joined", data.roomName);
+      console.log(`user ${socket.id} connected to room ${data.roomName}`);
+
+
+
+
+      socket.on("disconnect", () => {
+        console.log(`user ${socket.id} disconnected from room ${data.roomName}`);
+        
+        if (!room) return;
+
+        const leavingPlayer = room.players.find(p => p.id === socket.id);
+        const wasHost = leavingPlayer?.isHost;
+
+        room.players = room.players.filter(p => p.id !== socket.id);
+        
+        if (room.players.length === 0) {
+          activeMultiRooms.delete(data.roomName);
+        }
+        else {
+          if (wasHost && room.players.length > 0) {
+            room.players[0].isHost = true;
+          }
+        }
+      });
     });
+
+    
 
 
   });

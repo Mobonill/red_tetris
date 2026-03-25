@@ -28,10 +28,6 @@ export default function Game({ mode, pseudo, roomName }: GameProps) {
   const [pieceData, setPieceData] = useState<PieceData | null>(null);
   const [gameOver, setGameOver] = useState(false);
 
-  const [connectionStatus, setConnectionStatus] = useState("Connecting to server...");
-
-
-
   const hasJoined = useRef(false); // to not have x2 components like 2 solo games
   
   // receive state and put it on screen
@@ -41,14 +37,9 @@ export default function Game({ mode, pseudo, roomName }: GameProps) {
 
     if (mode === "solo") {
       socket.emit("join_solo", { name: pseudo });
-      setConnectionStatus("Playing Solo");
     } else {
       socket.emit("join_multi", { name: pseudo, roomName });
     }
-
-    socket.on("room_joined", (joinedRoomName) => {
-      setConnectionStatus(`🟢 Connected to Room: ${joinedRoomName}`);
-    });
 
     socket.on("state", (data) => {
       setGrid(data.grid);
@@ -58,11 +49,6 @@ export default function Game({ mode, pseudo, roomName }: GameProps) {
     socket.on("game_over", () => {
       setGameOver(true);
     });
-
-    return () => {
-      socket.off("state");
-      socket.off("game_over");
-    };
 
   }, [mode, pseudo, roomName]);
 
@@ -101,13 +87,6 @@ export default function Game({ mode, pseudo, roomName }: GameProps) {
 
   return (
     <div className="game-container">
-
-      <div style={{ padding: '10px', marginBottom: '20px', backgroundColor: '#222', borderRadius: '5px' }}>
-        <h3 style={{ margin: 0, color: connectionStatus.includes('🟢') ? '#4ade80' : 'white' }}>
-          {connectionStatus}
-        </h3>
-      </div>
-
       <div className="grid">
         {getMergedGrid().map((row, y) => (
           <div key={y} className="row">

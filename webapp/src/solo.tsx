@@ -5,7 +5,11 @@ import './solo.css'
 import { Routes, Route } from "react-router-dom";
 import Game  from "./components/Game"
 
-function Solo() {
+interface SoloProps {
+  onBack: () => void;
+}
+
+function Solo({ onBack }: SoloProps) {
 
   return (
     <>
