@@ -4,15 +4,16 @@ import Game  from "./components/Game"
 
 interface MultiProps {
   onBack: () => void;
+  roomName: string;
 }
 
-function Multi({ onBack }: MultiProps) {
+function Multi({ onBack , roomName }: MultiProps) {
 
   return (
     <>
       <div>
         <Routes>
-          <Route path="/" element={<Game mode="multi" pseudo="aa" roomName="room1"/>} />
+          <Route path="/" element={<Game mode="multi" pseudo="aa" roomName={roomName}/>} />
         </Routes>
       </div>
         
@@ -20,4 +21,4 @@ function Multi({ onBack }: MultiProps) {
   )
 }
 
-export default Multi
+export default Multi;

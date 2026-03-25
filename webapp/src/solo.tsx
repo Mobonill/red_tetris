@@ -23,4 +23,4 @@ function Solo({ onBack }: SoloProps) {
   )
 }
 
-export default Solo
+export default Solo;
