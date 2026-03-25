@@ -24,7 +24,7 @@ function Multi({ onBack , roomName , pseudo }: MultiProps) {
   useEffect(() => {
     if (hasJoined.current) return;
     hasJoined.current = true;
-    
+
     socket.emit("join_multi", { name: pseudo, roomName });
 
     socket.on("room_update", (roomPlayers: Player[]) => {
@@ -36,9 +36,14 @@ function Multi({ onBack , roomName , pseudo }: MultiProps) {
     });
   }, [pseudo, roomName]);
 
-  //for game start
+
   const handleStart = () => {
     socket.emit("start_game", roomName);
+  };
+
+  const handleLeave = () => {
+    socket.emit("leave_room", roomName);
+    onBack();
   };
 
   //game comp
@@ -74,7 +79,7 @@ function Multi({ onBack , roomName , pseudo }: MultiProps) {
         <h4>Waiting for host to start the game...</h4>
       )}
 
-      <button className="menu-button" onClick={onBack}>Leave Room</button>
+      <button className="menu-button" onClick={handleLeave}>Leave Room</button>
     </div>
   );
 }

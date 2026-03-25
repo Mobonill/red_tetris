@@ -112,5 +112,29 @@ export function initSocket(io: Server) {
       }
     });
 
+    socket.on("leave_room", (roomNameToLeave: string) => {
+        const roomToLeave = activeMultiRooms.get(roomNameToLeave);
+        if (!roomToLeave) return;
+
+        console.log(`user ${socket.id} left room ${roomNameToLeave}`);
+
+        const leavingPlayer = roomToLeave.players.find(p => p.id === socket.id);
+        const wasHost = leavingPlayer?.isHost;
+
+        roomToLeave.players = roomToLeave.players.filter(p => p.id !== socket.id);
+        
+        socket.leave(roomNameToLeave); 
+
+        if (roomToLeave.players.length === 0) {
+          activeMultiRooms.delete(roomNameToLeave);
+        }
+        else {
+          if (wasHost && roomToLeave.players.length > 0) {
+            roomToLeave.players[0].isHost = true;
+          }
+        }
+        io.to(roomNameToLeave).emit("room_update", roomToLeave.players);
+      });
+
   });
 }
