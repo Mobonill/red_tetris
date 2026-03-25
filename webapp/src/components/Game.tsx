@@ -37,8 +37,6 @@ export default function Game({ mode, pseudo, roomName }: GameProps) {
 
     if (mode === "solo") {
       socket.emit("join_solo", { name: pseudo });
-    } else {
-      socket.emit("join_multi", { name: pseudo, roomName });
     }
 
     socket.on("state", (data) => {

@@ -72,9 +72,7 @@ export function initSocket(io: Server) {
       socket.emit("room_joined", data.roomName);
       console.log(`user ${socket.id} connected to room ${data.roomName}`);
       console.log(`room length : ${room.players.length}`);
-
-
-
+      io.to(data.roomName).emit("room_update", room.players);
 
       socket.on("disconnect", () => {
         console.log(`user ${socket.id} disconnected from room ${data.roomName}`);
@@ -95,11 +93,24 @@ export function initSocket(io: Server) {
             room.players[0].isHost = true;
           }
         }
+        io.to(data.roomName).emit("room_update", room.players);
       });
     });
 
-    
+    socket.on("start_game", (roomName: string) => {
+      const room = activeMultiRooms.get(roomName);
+      
+      if (room) {
+        const requestingPlayer = room.players.find(p => p.id === socket.id);
+        
+        if (requestingPlayer && requestingPlayer.isHost && room.players.length === 2) {
+          io.to(roomName).emit("game_started");
+          console.log(`Game started in room: ${roomName}`);
 
+          // TODO: Start the setInterval timer here for the falling pieces!
+        }
+      }
+    });
 
   });
 }
