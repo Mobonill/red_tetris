@@ -72,7 +72,6 @@ export function initSocket(io: Server) {
       socket.emit("room_joined", data.roomName);
       console.log(`user ${socket.id} connected to room ${data.roomName}`);
       console.log(`room length : ${room.players.length}`);
-      console.log(`players : ${room.players}`);
 
 
 

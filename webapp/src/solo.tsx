@@ -7,15 +7,16 @@ import Game  from "./components/Game"
 
 interface SoloProps {
   onBack: () => void;
+  pseudo: string;
 }
 
-function Solo({ onBack }: SoloProps) {
+function Solo({ onBack , pseudo }: SoloProps) {
 
   return (
     <>
       <div>
         <Routes>
-          <Route path="/" element={<Game mode="solo" pseudo="aa"/>} />
+          <Route path="/" element={<Game mode="solo" pseudo={pseudo}/>} />
         </Routes>
       </div>
         
