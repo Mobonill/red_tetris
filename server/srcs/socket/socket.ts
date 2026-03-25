@@ -55,6 +55,7 @@ export function initSocket(io: Server) {
       if (room && room.players.length >= 2) {
         socket.emit("error", "This room is already full.");
         console.log(`user ${socket.id} tried connect to room ${data.roomName} but room is already full`);
+        console.log(`room length : ${room.players.length}`);
         return;
       }
 
@@ -70,6 +71,8 @@ export function initSocket(io: Server) {
       socket.join(data.roomName);
       socket.emit("room_joined", data.roomName);
       console.log(`user ${socket.id} connected to room ${data.roomName}`);
+      console.log(`room length : ${room.players.length}`);
+      console.log(`players : ${room.players}`);
 
 
 
@@ -83,6 +86,7 @@ export function initSocket(io: Server) {
         const wasHost = leavingPlayer?.isHost;
 
         room.players = room.players.filter(p => p.id !== socket.id);
+        console.log(`room length : ${room.players.length}`);
         
         if (room.players.length === 0) {
           activeMultiRooms.delete(data.roomName);
