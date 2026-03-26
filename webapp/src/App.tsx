@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import Solo from "./solo.tsx";
 import Multi from "./multi.tsx";
@@ -8,11 +8,30 @@ function App() {
     const [pseudo, setPseudo] = useState('');
     const [roomName, setRoomName] = useState('');
 
+    //url
+    useEffect(() => {
+        const path = window.location.pathname; 
+
+        const parts = path.split('/').filter(Boolean); 
+
+        if (parts.length === 2) {
+            setRoomName(parts[0]);
+            setPseudo(parts[1]);
+            setPage('multi');
+        }
+    }, []);
+
+    //url clean
+    const goHome = () => {
+        window.history.pushState({}, '', '/'); 
+        setPage('home');
+    };
+
     if (page === 'solo') {
-        return <Solo onBack={() => setPage('home')} pseudo={pseudo} />;
+        return <Solo onBack={goHome} pseudo={pseudo} />;
     }
     if (page === 'multi') {
-        return <Multi onBack={() => setPage('home')} pseudo={pseudo} roomName={roomName} />;
+        return <Multi onBack={goHome} pseudo={pseudo} roomName={roomName} />;
     }
 
     return (
@@ -33,7 +52,10 @@ function App() {
                         value={roomName}
                         onChange={(e) => setRoomName(e.target.value)}/>
                     <button className="menu-button" onClick={() => {
-                        if (pseudo.trim() !== '' && roomName.trim() !== '') {setPage('multi');}
+                        if (pseudo.trim() !== '' && roomName.trim() !== '') {
+                            setPage('multi');
+                            window.history.pushState({}, '', `/${roomName}/${pseudo}`);
+                        }
                         else {alert("Enter pseudo and room name");}}}>Create Room</button>
                 </div>
             </div>
