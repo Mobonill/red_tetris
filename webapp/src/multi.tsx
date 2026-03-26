@@ -34,6 +34,11 @@ function Multi({ onBack , roomName , pseudo }: MultiProps) {
     socket.on("game_started", () => {
       setGameStarted(true);
     });
+
+    socket.on("error", (message: string) => {
+      alert(message);
+      onBack();
+    });
   }, [pseudo, roomName]);
 
 

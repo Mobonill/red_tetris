@@ -56,7 +56,7 @@ function App() {
                             setPage('multi');
                             window.history.pushState({}, '', `/${roomName}/${pseudo}`);
                         }
-                        else {alert("Enter pseudo and room name");}}}>Create Room</button>
+                        else {alert("Enter pseudo and room name");}}}>Create / Join Room</button>
                 </div>
             </div>
         </div>
