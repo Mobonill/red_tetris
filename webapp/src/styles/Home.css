@@ -2,25 +2,38 @@
   position: relative;
   min-height: 100vh;
   width: 100vw;
-  background: linear-gradient(135deg, #fefeff 0%, #f3f3f3 50%, #ffffff 100%);
+  background: linear-gradient(135deg, #000005 0%, #000000 50%, #1d1c1c 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
   padding: 2rem 1rem;
   gap: 2rem;
-  color: white;
   box-sizing: border-box;
 }
 
-.blocks-canvas {
+.blocks {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   z-index: 0;
+  overflow: hidden;
 }
+
+.block-cell {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  opacity: 0;
+  animation: blockAppear 3s ease-in-out forwards;
+}
+
+@keyframes blockAppear {
+  0%   { opacity: 0; }
+  30%  { opacity: 0.7; }
+  70%  { opacity: 0.7; }
+  100% { opacity: 0; }
+}
+
 
 .tetris-title, .pseudo-wrap, .cards {
   position: relative;

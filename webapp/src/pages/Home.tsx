@@ -1,46 +1,39 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Home.css";
 
 function LightUpBlocks() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
+  const [cells, setCells] = useState<{id: number, color: string, x: number, y: number}[]>([]);
+  
   useEffect(() => {
-    const canvas = canvasRef.current!;
-    const ctx = canvas.getContext('2d')!;
     const BLOCK = 50;
+    const cols = Math.ceil(window.innerWidth / BLOCK);
+    const rows = Math.ceil(window.innerHeight / BLOCK);
     const COLORS = ['#f71d00', '#f36100', '#ffd900', '#5eff00', '#00eeff', '#8c00ff'];
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    let tick = 0;
-    let raf: number;
-
-    const animate = () => {
-      tick++;
-
-      if (tick % 10 === 0) { // toutes les 20 frames
-        ctx.fillStyle = 'rgba(3, 3, 5, 0.3)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        const x = Math.floor(Math.random() * (canvas.width / BLOCK)) * BLOCK;
-        const y = Math.floor(Math.random() * (canvas.height / BLOCK)) * BLOCK;
-        const color = COLORS[Math.floor(Math.random() * COLORS.length)];
-        ctx.globalAlpha = 0.7;
-        ctx.fillStyle = color;
-        ctx.fillRect(x, y, BLOCK - 2, BLOCK - 2);
-        ctx.globalAlpha = 1;
-      }
-
-      raf = requestAnimationFrame(animate);
-    };
-
-    raf = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(raf);
+    
+    const interval = setInterval(() => {
+      const x = Math.floor(Math.random() * cols);
+      const y = Math.floor(Math.random() * rows);
+      const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+      const id = Date.now() + Math.random();
+      
+      setCells(prev => [...prev.slice(-30), { id, color, x, y }]);
+    }, 400);
+    
+    return () => clearInterval(interval);
   }, []);
 
-  return <canvas ref={canvasRef} className="blocks-canvas" />;
+  return (
+    <div className="blocks">
+      {cells.map(cell => (
+        <div key={cell.id} className="block-cell" style={{
+          left: cell.x * 50,
+          top: cell.y * 50,
+          background: cell.color,
+        }} />
+      ))}
+    </div>
+  );
 }
 
 function Home() {
