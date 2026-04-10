@@ -12,7 +12,7 @@
 
 import { RoomSolo } from "./roomSolo.js";
 
-export class SoloGame extends RoomSolo {
+export class MultiGame extends RoomSolo {
   private gameOver = false;
   private isLocked = false;
   private timer: ReturnType<typeof setInterval> | null = null;

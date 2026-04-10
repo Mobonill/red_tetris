@@ -6,7 +6,7 @@
 /*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/05 16:54:51 by morgane           #+#    #+#             */
-/*   Updated: 2026/03/20 16:47:49 by morgane          ###   ########.fr       */
+/*   Updated: 2026/04/08 10:55:13 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -193,4 +193,4 @@ export class Pieces {
   };
 }
 
-const pieces = new Pieces();
+// const pieces = new Pieces();

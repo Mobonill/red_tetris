@@ -17,10 +17,17 @@ import { Pieces } from "../../../server/srcs/classes/pieces";
 import type { Grid2D, PieceType } from "../../../server/srcs/classes/types";
 import type { PieceData } from "../types/PieceData";
 
-export default function Game() {
+interface GameProps {
+  mode: "solo" | "multi";
+  pseudo: string;
+  roomName?: string; // Only needed for multi
+}
+
+export default function Game({ mode, pseudo, roomName }: GameProps) {
   const [grid, setGrid] = useState<Grid2D>([]);
   const [pieceData, setPieceData] = useState<PieceData | null>(null);
   const [gameOver, setGameOver] = useState(false);
+
   const hasJoined = useRef(false); // to not have x2 components like 2 solo games
   
   // receive state and put it on screen
@@ -28,7 +35,9 @@ export default function Game() {
     if (hasJoined.current) return;
     hasJoined.current = true;
 
-    socket.emit("join_solo", { name: "Morgan" });
+    if (mode === "solo") {
+      socket.emit("join_solo", { name: pseudo });
+    }
 
     socket.on("state", (data) => {
       setGrid(data.grid);
@@ -38,7 +47,8 @@ export default function Game() {
     socket.on("game_over", () => {
       setGameOver(true);
     });
-  }, []);
+
+  }, [mode, pseudo, roomName]);
 
   const getMergedGrid = () => {
     const merged = grid.map((row) => [...row]);

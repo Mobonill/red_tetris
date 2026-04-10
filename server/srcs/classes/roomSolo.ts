@@ -14,7 +14,7 @@ import { Player } from "./player.js";
 import { PIECE_TYPES, PieceType } from "./types.js";
 import { Pieces } from "./pieces.js";
 
-export abstract class Room {
+export abstract class RoomSolo {
   readonly id: string;
   players: Player[];
   private bag: PieceType[];

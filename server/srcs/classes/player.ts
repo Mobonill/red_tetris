@@ -6,7 +6,7 @@
 /*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/20 12:52:20 by morgane           #+#    #+#             */
-/*   Updated: 2026/03/20 16:57:20 by morgane          ###   ########.fr       */
+/*   Updated: 2026/04/08 10:52:44 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,18 +16,20 @@ import { Grid } from "./grid.js";
 export class Player {
   readonly id: string;
   name: string;
-  role: string;
+  isHost: boolean;
   grid: Grid;
-  piece: Pieces | null = null;;
+  piece: Pieces | null = null;
   score: number;
   isConnected: boolean;
+  pieceIndex: number;
 
-  constructor(socketId: string, name: string) {
+  constructor(socketId: string, name: string, isHost: boolean = false) {
     this.id = socketId;
     this.name = name;
     this.grid = new Grid();
     this.score = 0;
     this.isConnected = true;
-    this.role = "guest";
+    this.isHost = isHost;
+    this.pieceIndex = 0;
   }
 }
