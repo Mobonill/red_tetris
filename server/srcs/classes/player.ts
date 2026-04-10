@@ -6,7 +6,7 @@
 /*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/20 12:52:20 by morgane           #+#    #+#             */
-/*   Updated: 2026/03/20 16:57:20 by morgane          ###   ########.fr       */
+/*   Updated: 2026/04/08 10:52:44 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ export class Player {
   name: string;
   isHost: boolean;
   grid: Grid;
-  piece: Pieces | null = null;;
+  piece: Pieces | null = null;
   score: number;
   isConnected: boolean;
   pieceIndex: number;

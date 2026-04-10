@@ -1,8 +1,8 @@
-import './solo.css'
-import { useState, useEffect, useRef } from 'react';
-import { Routes, Route } from "react-router-dom";
-import Game  from "./components/Game"
-import socket from "./socket";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import "../styles/solo.css";
+import Game from "../components/Game";
+import socket from "../socket";
 
 interface Player {
   id: string;
@@ -10,17 +10,17 @@ interface Player {
   isHost: boolean;
 }
 
-interface MultiProps {
-  onBack: () => void;
-  pseudo:string;
-  roomName: string;
-}
+function Multi() {
+  const { pseudo = "", roomName = "" } = useParams<{
+    pseudo: string;
+    roomName: string;
+  }>();
+  const navigate = useNavigate();
 
-function Multi({ onBack , roomName , pseudo }: MultiProps) {
   const [players, setPlayers] = useState<Player[]>([]);
   const [gameStarted, setGameStarted] = useState(false);
   const hasJoined = useRef(false);
-  
+
   useEffect(() => {
     if (hasJoined.current) return;
     hasJoined.current = true;
@@ -37,10 +37,15 @@ function Multi({ onBack , roomName , pseudo }: MultiProps) {
 
     socket.on("error", (message: string) => {
       alert(message);
-      onBack();
+      navigate("/");
     });
-  }, [pseudo, roomName]);
 
+    return () => {
+      socket.off("room_update");
+      socket.off("game_started");
+      socket.off("error");
+    };
+  }, [pseudo, roomName, navigate]);
 
   const handleStart = () => {
     socket.emit("start_game", roomName);
@@ -48,43 +53,36 @@ function Multi({ onBack , roomName , pseudo }: MultiProps) {
 
   const handleLeave = () => {
     socket.emit("leave_room", roomName);
-    onBack();
+    navigate("/");
   };
 
-  //game comp
   if (gameStarted) {
-    return (
-      <Routes>
-        <Route path="/" element={<Game mode="multi" pseudo={pseudo} roomName={roomName} />} />
-      </Routes>
-    );
+    return <Game mode="multi" pseudo={pseudo} roomName={roomName} />;
   }
 
-  //whos host
-  const me = players.find(p => p.id === socket.id);
-  const isHost = me?.isHost || false;
+  const me = players.find((p) => p.id === socket.id);
+  const isHost = me?.isHost ?? false;
 
-  //lobby
   return (
     <div className="app-container">
       <h2>Room: {roomName}</h2>
-      
       <div>
         <h3>Players ({players.length}/2)</h3>
       </div>
-
       {isHost ? (
-        <button 
-          className="menu-button" 
-          onClick={handleStart} 
-          disabled={players.length < 2}>
+        <button
+          className="menu-button"
+          onClick={handleStart}
+          disabled={players.length < 2}
+        >
           {players.length < 2 ? "Waiting for 2nd player..." : "Start Game"}
         </button>
       ) : (
         <h4>Waiting for host to start the game...</h4>
       )}
-
-      <button className="menu-button" onClick={handleLeave}>Leave Room</button>
+      <button className="menu-button" onClick={handleLeave}>
+        Leave Room
+      </button>
     </div>
   );
 }

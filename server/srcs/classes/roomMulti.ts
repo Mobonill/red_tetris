@@ -5,7 +5,7 @@ import { Pieces } from "./pieces.js";
 export class RoomMulti {
   readonly id: string;
   players: Player[];
-  
+
   // Instead of a single bag, this is an ever-expanding master sequence of pieces
   private pieceSequence: PieceType[];
 
@@ -28,7 +28,7 @@ export class RoomMulti {
     return piecesTab;
   }
 
-  // Fetch a piece at a specific index. 
+  // Fetch a piece at a specific index.
   // If a player reaches the end of the known sequence, we generate another bag for everyone.
   getPieceAt(index: number): PieceType {
     while (index >= this.pieceSequence.length) {
@@ -41,11 +41,11 @@ export class RoomMulti {
   spawnPieceForPlayer(player: Player): Pieces {
     // Assuming you add a `pieceIndex` number property to your Player class!
     const type = this.getPieceAt(player.pieceIndex);
-    
+
     console.log(`Next piece for ${player.name}:`, type);
-    
+
     player.pieceIndex++; // Move this specific player forward in the sequence
-    
+
     return Pieces.fromType(type);
   }
 }

@@ -66,3 +66,29 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+@font-face{
+  font-family: "Tektur-bold";
+  src: url('./assets/font/Tektur-Bold.ttf')
+}
+@font-face{
+  font-family: "Tektur-reg";
+  src: url('./assets/font/Tektur_SemiCondensed-Regular.ttf')
+}
+
+@font-face{
+  font-family: "Tektur-xbold";
+  src: url('./assets/font/Tektur-ExtraBold.ttf')
+}
+
+@font-face{
+  font-family: "Tektur-black";
+  src: url('./assets/font/Tektur-Black.ttf')
+}
+
+@font-face {
+  font-family: "Orbitron-black";
+  src: url('./assets/font/Orbitron-Black.ttf');
+}
+
+

@@ -92,7 +92,6 @@ export class SoloGame extends RoomSolo {
     const player = this.players[0];
     if (!player.piece) return "error";
 
-
     if (this.gameOver) {
       return "game_over";
     }

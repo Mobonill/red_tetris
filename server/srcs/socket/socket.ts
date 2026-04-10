@@ -47,14 +47,14 @@ export function initSocket(io: Server) {
       });
     });
 
-
     socket.on("join_multi", (data: { name: string; roomName: string }) => {
-
       let room = activeMultiRooms.get(data.roomName);
 
       if (room && room.players.length >= 2) {
         socket.emit("error", "This room is already full.");
-        console.log(`user ${socket.id} tried connect to room ${data.roomName} but room is already full`);
+        console.log(
+          `user ${socket.id} tried connect to room ${data.roomName} but room is already full`,
+        );
         console.log(`room length : ${room.players.length}`);
         return;
       }
@@ -75,20 +75,21 @@ export function initSocket(io: Server) {
       io.to(data.roomName).emit("room_update", room.players);
 
       socket.on("disconnect", () => {
-        console.log(`user ${socket.id} disconnected from room ${data.roomName}`);
-        
+        console.log(
+          `user ${socket.id} disconnected from room ${data.roomName}`,
+        );
+
         if (!room) return;
 
-        const leavingPlayer = room.players.find(p => p.id === socket.id);
+        const leavingPlayer = room.players.find((p) => p.id === socket.id);
         const wasHost = leavingPlayer?.isHost;
 
-        room.players = room.players.filter(p => p.id !== socket.id);
+        room.players = room.players.filter((p) => p.id !== socket.id);
         console.log(`room length : ${room.players.length}`);
-        
+
         if (room.players.length === 0) {
           activeMultiRooms.delete(data.roomName);
-        }
-        else {
+        } else {
           if (wasHost && room.players.length > 0) {
             room.players[0].isHost = true;
           }
@@ -99,11 +100,15 @@ export function initSocket(io: Server) {
 
     socket.on("start_game", (roomName: string) => {
       const room = activeMultiRooms.get(roomName);
-      
+
       if (room) {
-        const requestingPlayer = room.players.find(p => p.id === socket.id);
-        
-        if (requestingPlayer && requestingPlayer.isHost && room.players.length === 2) {
+        const requestingPlayer = room.players.find((p) => p.id === socket.id);
+
+        if (
+          requestingPlayer &&
+          requestingPlayer.isHost &&
+          room.players.length === 2
+        ) {
           io.to(roomName).emit("game_started");
           console.log(`Game started in room: ${roomName}`);
 
@@ -113,28 +118,28 @@ export function initSocket(io: Server) {
     });
 
     socket.on("leave_room", (roomNameToLeave: string) => {
-        const roomToLeave = activeMultiRooms.get(roomNameToLeave);
-        if (!roomToLeave) return;
+      const roomToLeave = activeMultiRooms.get(roomNameToLeave);
+      if (!roomToLeave) return;
 
-        console.log(`user ${socket.id} left room ${roomNameToLeave}`);
+      console.log(`user ${socket.id} left room ${roomNameToLeave}`);
 
-        const leavingPlayer = roomToLeave.players.find(p => p.id === socket.id);
-        const wasHost = leavingPlayer?.isHost;
+      const leavingPlayer = roomToLeave.players.find((p) => p.id === socket.id);
+      const wasHost = leavingPlayer?.isHost;
 
-        roomToLeave.players = roomToLeave.players.filter(p => p.id !== socket.id);
-        
-        socket.leave(roomNameToLeave); 
+      roomToLeave.players = roomToLeave.players.filter(
+        (p) => p.id !== socket.id,
+      );
 
-        if (roomToLeave.players.length === 0) {
-          activeMultiRooms.delete(roomNameToLeave);
+      socket.leave(roomNameToLeave);
+
+      if (roomToLeave.players.length === 0) {
+        activeMultiRooms.delete(roomNameToLeave);
+      } else {
+        if (wasHost && roomToLeave.players.length > 0) {
+          roomToLeave.players[0].isHost = true;
         }
-        else {
-          if (wasHost && roomToLeave.players.length > 0) {
-            roomToLeave.players[0].isHost = true;
-          }
-        }
-        io.to(roomNameToLeave).emit("room_update", roomToLeave.players);
-      });
-
+      }
+      io.to(roomNameToLeave).emit("room_update", roomToLeave.players);
+    });
   });
 }
