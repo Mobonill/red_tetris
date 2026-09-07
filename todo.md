@@ -1,0 +1,5 @@
+- scoring
+- fix rooms
+- implement game in rooms
+- view opponents height in multi
+- db bonus
