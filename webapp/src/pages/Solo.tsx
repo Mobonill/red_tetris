@@ -1,15 +1,21 @@
-import { useParams } from 'react-router-dom';
-import '../styles/solo.css';
+import { useParams, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import "../styles/solo.css";
 import Game from "../components/Game";
 
 function Solo() {
-    const { pseudo = '' } = useParams<{ pseudo: string }>();
+  const { pseudo = "" } = useParams<{ pseudo: string }>();
+  const navigate = useNavigate();
 
-    return (
-        <div>
-            <Game mode="solo" pseudo={pseudo} />
-        </div>
-    );
+  useEffect(() => {
+    if (!pseudo) navigate("/");
+  }, [pseudo, navigate]);
+
+  return (
+    <div>
+      <Game mode="solo" pseudo={pseudo} />
+    </div>
+  );
 }
 
 export default Solo;
