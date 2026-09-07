@@ -1,0 +1,50 @@
+.blocks {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.block-cell {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  opacity: 0;
+  animation: blockAppear 3s ease-in-out forwards;
+}
+
+@keyframes blockAppear {
+  0%   { opacity: 0; }
+  30%  { opacity: 0.25; }
+  70%  { opacity: 0.25; }
+  100% { opacity: 0; }
+}
+
+
+.tetris-title {
+  position: relative;
+  z-index: 1;
+}
+
+.tetris-title {
+  display: flex;
+  gap: 8px;
+  font-weight: 100%;
+  letter-spacing: 0;
+  margin-bottom: clamp(1rem, 1vh, 5rem);
+}
+
+.letter {
+  width: auto;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Tektur-black";
+  font-size: 100px;
+  font-weight: 700;
+  background: transparent;
+  text-shadow: 0 0 8px currentColor, 0 2px 4px rgba(0,0,0,0.4);
+  opacity: 0.9;
+}
+

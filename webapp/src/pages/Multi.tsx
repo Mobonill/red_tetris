@@ -17,6 +17,10 @@ function Multi() {
   }>();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (!pseudo) navigate("/");
+  }, [pseudo, navigate]);
+
   const [players, setPlayers] = useState<Player[]>([]);
   const [gameStarted, setGameStarted] = useState(false);
   const hasJoined = useRef(false);

@@ -12,59 +12,20 @@
   box-sizing: border-box;
 }
 
-.blocks {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-}
-
-.block-cell {
-  position: absolute;
-  width: 48px;
-  height: 48px;
-  opacity: 0;
-  animation: blockAppear 3s ease-in-out forwards;
-}
-
-@keyframes blockAppear {
-  0%   { opacity: 0; }
-  30%  { opacity: 0.7; }
-  70%  { opacity: 0.7; }
-  100% { opacity: 0; }
-}
-
-
-.tetris-title, .pseudo-wrap, .cards {
+.page-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
   position: relative;
   z-index: 1;
-}
-
-.tetris-title {
-  display: flex;
-  gap: 8px;
-  font-weight: 100%;
-  letter-spacing: 0;
-  margin-bottom: clamp(1rem, 1vh, 5rem);
-}
-
-.letter {
-  width: auto;
-  height: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: "Tektur-black";
-  font-size: 100px;
-  font-weight: 700;
-  background: transparent;
-  text-shadow: 0 0 12px currentColor, 0 2px 4px rgba(0,0,0,0.4);
-  opacity: 0.9;
 }
 
 .pseudo-wrap {
   width: 100%;
   max-width: 420px;
+  position: relative;
+  z-index: 1;
 }
 
 .pseudo-wrap input {
@@ -88,11 +49,13 @@
   grid-template-columns: repeat(2, minmax(150px, 350px));
   gap: 22px;
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
 .glass-card {
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.048);
   border-radius: 16px;
   padding: 1.5rem 1.25rem;
   display: flex;
@@ -113,17 +76,23 @@
 }
 
 .card-title {
-  font-size: 17px;
+  font-size: 25px;
+  display: flex;
+  justify-content: center;
   font-weight: 700;
-  color: #fff;
+  color: #ffffff;
   margin: 0;
 }
 
 .card-desc {
   font-size: 13px;
   color: rgba(255, 255, 255, 0.55);
+  display: flex;
+  justify-content: center;
+  margin-top: 1px;
   margin: 0;
-  line-height: 1.5;
+  line-height: 2.5;
+  margin-bottom: 30px;
 }
 
 .card-input {
@@ -153,21 +122,24 @@
 }
 
 .btn-solo {
-  background: #E24B4A;
-  color: #fff;
+  background: #ff8800e0;
+  font-weight: 500;
 }
 
 .btn-solo:hover {
-  background: #c73b3a;
+  background: #ff6600;
+  font-weight: 900;
+
 }
 
 .btn-multi {
-  background: #378ADD;
-  color: #fff;
+  background: #ff8800e0;
+  font-weight: 500;
 }
 
 .btn-multi:hover {
-  background: #2a6db8;
+  background: #ff6600;
+  font-weight: 900;
 }
 
 @media (max-width: 480px) {
