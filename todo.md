@@ -1,4 +1,3 @@
-
 - fix rooms --------------------------------- =~ ok
 - implement game in rooms ------------------- ok
 - view opponents height in multi
