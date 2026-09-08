@@ -26,11 +26,6 @@ function Multi() {
   const hasJoined = useRef(false);
 
   useEffect(() => {
-    if (hasJoined.current) return;
-    hasJoined.current = true;
-
-    socket.emit("join_multi", { name: pseudo, roomName });
-
     socket.on("room_update", (roomPlayers: Player[]) => {
       setPlayers(roomPlayers);
     });
@@ -43,6 +38,11 @@ function Multi() {
       alert(message);
       navigate("/");
     });
+
+    if (!hasJoined.current) {
+      hasJoined.current = true;
+      socket.emit("join_multi", { name: pseudo, roomName });
+    }
 
     return () => {
       socket.off("room_update");
@@ -61,7 +61,14 @@ function Multi() {
   };
 
   if (gameStarted) {
-    return <Game mode="multi" pseudo={pseudo} roomName={roomName} />;
+    return (
+      <Game
+        mode="multi"
+        pseudo={pseudo}
+        roomName={roomName}
+        onExit={handleLeave}
+      />
+    );
   }
 
   const me = players.find((p) => p.id === socket.id);

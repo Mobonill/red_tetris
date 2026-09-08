@@ -22,6 +22,7 @@ export class Player {
   score: number;
   isConnected: boolean;
   pieceIndex: number;
+  alive: boolean;
 
   constructor(socketId: string, name: string, isHost: boolean = false) {
     this.id = socketId;
@@ -31,5 +32,6 @@ export class Player {
     this.isConnected = true;
     this.isHost = isHost;
     this.pieceIndex = 0;
+    this.alive = true;
   }
 }

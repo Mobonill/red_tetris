@@ -1,25 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   soloGame.ts                                        :+:      :+:    :+:   */
+/*   multiGame.ts                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/20 15:47:08 by morgane           #+#    #+#             */
-/*   Updated: 2026/03/20 16:59:15 by morgane          ###   ########.fr       */
+/*   Updated: 2026/09/08 00:00:00 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import { RoomSolo } from "./roomSolo.js";
+import { RoomMulti } from "./roomMulti.js";
 
-export class MultiGame extends RoomSolo {
-  private gameOver = false;
-  private isLocked = false;
-  private timer: ReturnType<typeof setInterval> | null = null;
+export class MultiGame extends RoomMulti {
+  inProgress = false;
+  private isLocked = new Map<string, boolean>();
 
-  getState() {
-    const player = this.players[0];
-    if (!player.piece) return;
+  startGame(): void {
+    for (const player of this.players) {
+      player.grid.clearGrid();
+      player.pieceIndex = 0;
+      player.alive = true;
+      this.isLocked.set(player.id, false);
+      player.piece = this.spawnPieceForPlayer(player);
+    }
+    this.inProgress = true;
+  }
+
+  getStateForPlayer(playerId: string) {
+    const player = this.players.find((p) => p.id === playerId);
+    if (!player || !player.piece) return;
 
     return {
       grid: player.grid.getGrid(),
@@ -29,9 +39,12 @@ export class MultiGame extends RoomSolo {
     };
   }
 
-  handleMove(direction: string): "game_over" | "continue" | "error" {
-    const player = this.players[0];
-    if (!player.piece) return "error";
+  handleMove(
+    playerId: string,
+    direction: string,
+  ): "game_over" | "continue" | "error" {
+    const player = this.players.find((p) => p.id === playerId);
+    if (!player || !player.piece || !player.alive) return "error";
 
     switch (direction) {
       case "ArrowLeft":
@@ -68,47 +81,44 @@ export class MultiGame extends RoomSolo {
         break;
 
       case " ": {
-        if (this.isLocked || this.gameOver) return "game_over";
-        this.isLocked = true;
+        if (this.isLocked.get(playerId)) return "continue";
+        this.isLocked.set(playerId, true);
         while (player.grid.isPiecePositionValid(player.piece)) {
           player.piece.moveDown();
         }
         player.piece.moveUp();
         player.grid.lockPiece(player.piece);
         player.grid.clearLines();
-        const nextPiece = this.spawnPiece();
-        if (!player.grid.isPiecePositionValid(nextPiece)) {
-          // clearInterval(timer);
-        }
+        const nextPiece = this.spawnPieceForPlayer(player);
+        this.isLocked.set(playerId, false);
         player.piece = nextPiece;
-        this.isLocked = false;
+        if (!player.grid.isPiecePositionValid(nextPiece)) {
+          player.alive = false;
+          return "game_over";
+        }
         return "continue";
       }
     }
     return "continue";
   }
 
-  timerClock(): "continue" | "game_over" | "error" {
-    const player = this.players[0];
-    if (!player.piece) return "error";
+  timerClock(playerId: string): "continue" | "game_over" | "error" {
+    const player = this.players.find((p) => p.id === playerId);
+    if (!player || !player.piece || !player.alive) return "error";
 
-    if (this.gameOver) {
-      return "game_over";
-    }
     player.piece.moveDown();
     if (!player.grid.isPiecePositionValid(player.piece)) {
       player.piece.moveUp();
-      if (this.isLocked) return "continue";
-      this.isLocked = true;
+      if (this.isLocked.get(playerId)) return "continue";
+      this.isLocked.set(playerId, true);
       player.grid.lockPiece(player.piece);
       player.grid.clearLines();
-      player.piece = this.spawnPiece();
+      player.piece = this.spawnPieceForPlayer(player);
+      this.isLocked.set(playerId, false);
       if (!player.grid.isPiecePositionValid(player.piece)) {
-        this.gameOver = true;
-        this.isLocked = false;
-        return "continue";
+        player.alive = false;
+        return "game_over";
       }
-      this.isLocked = false;
     }
     return "continue";
   }

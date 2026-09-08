@@ -21,21 +21,20 @@ interface GameProps {
   mode: "solo" | "multi";
   pseudo: string;
   roomName?: string; // Only needed for multi
+  onExit?: () => void; // Only used for multi's post-game button
 }
 
-export default function Game({ mode, pseudo, roomName }: GameProps) {
+export default function Game({ mode, pseudo, roomName, onExit }: GameProps) {
   const [grid, setGrid] = useState<Grid2D>([]);
   const [pieceData, setPieceData] = useState<PieceData | null>(null);
-  const [gameOver, setGameOver] = useState(false);
+  const [result, setResult] = useState<"playing" | "won" | "lost">("playing");
 
   const hasJoined = useRef(false); // to not have x2 components like 2 solo games
-  
+
   // receive state and put it on screen
   useEffect(() => {
-    if (hasJoined.current) return;
-    hasJoined.current = true;
-
-    if (mode === "solo") {
+    if (mode === "solo" && !hasJoined.current) {
+      hasJoined.current = true;
       socket.emit("join_solo", { name: pseudo });
     }
 
@@ -45,9 +44,18 @@ export default function Game({ mode, pseudo, roomName }: GameProps) {
     });
 
     socket.on("game_over", () => {
-      setGameOver(true);
+      setResult("lost");
     });
 
+    socket.on("game_won", () => {
+      setResult("won");
+    });
+
+    return () => {
+      socket.off("state");
+      socket.off("game_over");
+      socket.off("game_won");
+    };
   }, [mode, pseudo, roomName]);
 
   const getMergedGrid = () => {
@@ -71,16 +79,17 @@ export default function Game({ mode, pseudo, roomName }: GameProps) {
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
+      if (result !== "playing") return;
       socket.emit("move", e.key);
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, []);
+  }, [result]);
 
   const restart = () => {
     socket.disconnect();
     socket.connect();
-    setGameOver(false);
+    setResult("playing");
   };
 
   return (
@@ -102,8 +111,17 @@ export default function Game({ mode, pseudo, roomName }: GameProps) {
           </div>
         ))}
       </div>
-      {gameOver && <div className="game-over">GAME OVER</div>}
-      {gameOver && <button onClick={restart}>Rejouer</button>}
+      {result !== "playing" && (
+        <div className="game-over">
+          {result === "won" ? "YOU WIN!" : "GAME OVER"}
+        </div>
+      )}
+      {result !== "playing" && mode === "solo" && (
+        <button onClick={restart}>Rejouer</button>
+      )}
+      {result !== "playing" && mode === "multi" && onExit && (
+        <button onClick={onExit}>Leave Room</button>
+      )}
     </div>
   );
 }

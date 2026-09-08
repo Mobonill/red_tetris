@@ -17,6 +17,30 @@ import { SoloGame } from "../classes/soloGame.js";
 import { MultiGame } from "../classes/multiGame.js";
 
 const activeMultiRooms = new Map<string, MultiGame>();
+const roomTimers = new Map<string, ReturnType<typeof setInterval>>();
+
+function endMultiGameIfOver(io: Server, room: MultiGame) {
+  if (!room.inProgress) return;
+
+  const alivePlayers = room.players.filter((p) => p.alive);
+  if (alivePlayers.length > 1) return;
+
+  room.inProgress = false;
+  const timer = roomTimers.get(room.id);
+  if (timer) {
+    clearInterval(timer);
+    roomTimers.delete(room.id);
+  }
+
+  if (alivePlayers.length === 1) {
+    io.to(alivePlayers[0].id).emit("game_won");
+  }
+  room.players
+    .filter((p) => !p.alive)
+    .forEach((p) => {
+      io.to(p.id).emit("game_over");
+    });
+}
 
 export function initSocket(io: Server) {
   io.on("connection", (socket) => {
@@ -74,6 +98,16 @@ export function initSocket(io: Server) {
       console.log(`room length : ${room.players.length}`);
       io.to(data.roomName).emit("room_update", room.players);
 
+      socket.on("move", (direction: string) => {
+        if (!room || !room.inProgress) return;
+        const result = room.handleMove(socket.id, direction);
+        if (result === "game_over") {
+          endMultiGameIfOver(io, room);
+        } else if (result === "continue") {
+          socket.emit("state", room.getStateForPlayer(socket.id));
+        }
+      });
+
       socket.on("disconnect", () => {
         console.log(
           `user ${socket.id} disconnected from room ${data.roomName}`,
@@ -95,6 +129,7 @@ export function initSocket(io: Server) {
           }
         }
         io.to(data.roomName).emit("room_update", room.players);
+        if (room.inProgress) endMultiGameIfOver(io, room);
       });
     });
 
@@ -107,12 +142,31 @@ export function initSocket(io: Server) {
         if (
           requestingPlayer &&
           requestingPlayer.isHost &&
-          room.players.length === 2
+          room.players.length === 2 &&
+          !room.inProgress
         ) {
+          room.startGame();
           io.to(roomName).emit("game_started");
           console.log(`Game started in room: ${roomName}`);
 
-          // TODO: Start the setInterval timer here for the falling pieces!
+          const timer = setInterval(() => {
+            for (const player of room.players) {
+              if (player.alive) room.timerClock(player.id);
+            }
+
+            endMultiGameIfOver(io, room);
+            if (!room.inProgress) return;
+
+            for (const player of room.players) {
+              if (player.alive) {
+                io.to(player.id).emit(
+                  "state",
+                  room.getStateForPlayer(player.id),
+                );
+              }
+            }
+          }, 1200);
+          roomTimers.set(roomName, timer);
         }
       }
     });
