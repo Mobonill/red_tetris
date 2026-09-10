@@ -6,7 +6,7 @@
 /*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/20 15:47:08 by morgane           #+#    #+#             */
-/*   Updated: 2026/03/20 16:59:15 by morgane          ###   ########.fr       */
+/*   Updated: 2026/09/10 13:40:18 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ export class SoloGame extends RoomSolo {
 
       case "ArrowUp":
         player.piece.rotate();
+        console.log("ROTATION");
         if (!player.grid.isPiecePositionValid(player.piece)) {
           player.piece.moveLeft();
           if (!player.grid.isPiecePositionValid(player.piece)) {
@@ -62,6 +63,7 @@ export class SoloGame extends RoomSolo {
             if (!player.grid.isPiecePositionValid(player.piece)) {
               player.piece.moveLeft();
               player.piece.unrotate();
+              console.log("UNROTATE");
             }
           }
         }
