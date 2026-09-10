@@ -8,6 +8,7 @@ interface Player {
   id: string;
   pseudo: string;
   isHost: boolean;
+  readyToRestart: boolean;
 }
 
 function Multi() {
@@ -24,20 +25,31 @@ function Multi() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [gameStarted, setGameStarted] = useState(false);
   const hasJoined = useRef(false);
+  const hasLeft = useRef(false);
+  const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    socket.on("room_update", (roomPlayers: Player[]) => {
+    // We're (re)mounting, so any leave scheduled by a previous cleanup
+    // (StrictMode's synthetic unmount, most likely) should not fire.
+    if (leaveTimer.current !== null) {
+      clearTimeout(leaveTimer.current);
+      leaveTimer.current = null;
+    }
+
+    const handleRoomUpdate = (roomPlayers: Player[]) => {
       setPlayers(roomPlayers);
-    });
-
-    socket.on("game_started", () => {
+    };
+    const handleGameStarted = () => {
       setGameStarted(true);
-    });
-
-    socket.on("error", (message: string) => {
+    };
+    const handleError = (message: string) => {
       alert(message);
-      navigate("/");
-    });
+      navigate("/home");
+    };
+
+    socket.on("room_update", handleRoomUpdate);
+    socket.on("game_started", handleGameStarted);
+    socket.on("error", handleError);
 
     if (!hasJoined.current) {
       hasJoined.current = true;
@@ -45,9 +57,24 @@ function Multi() {
     }
 
     return () => {
-      socket.off("room_update");
-      socket.off("game_started");
-      socket.off("error");
+      // socket.off(event) with no handler would also strip Game.tsx's own
+      // "game_started" listener, since they share the same socket singleton.
+      socket.off("room_update", handleRoomUpdate);
+      socket.off("game_started", handleGameStarted);
+      socket.off("error", handleError);
+
+      // Deferred so a StrictMode synthetic remount (which runs synchronously
+      // right after this) can cancel it above before it ever fires. If this
+      // really is a real unmount (navigating away, incl. the browser back
+      // button), nothing cancels it and the room gets a proper leave.
+      if (!hasLeft.current) {
+        leaveTimer.current = setTimeout(() => {
+          if (!hasLeft.current) {
+            hasLeft.current = true;
+            socket.emit("leave_room", roomName);
+          }
+        }, 0);
+      }
     };
   }, [pseudo, roomName, navigate]);
 
@@ -55,18 +82,29 @@ function Multi() {
     socket.emit("start_game", roomName);
   };
 
+  const handleRestart = () => {
+    socket.emit("restart_game", roomName);
+  };
+
   const handleLeave = () => {
+    hasLeft.current = true;
     socket.emit("leave_room", roomName);
-    navigate("/");
+    navigate("/home");
   };
 
   if (gameStarted) {
+    const me = players.find((p) => p.id === socket.id);
+    const opponent = players.find((p) => p.id !== socket.id);
     return (
       <Game
         mode="multi"
         pseudo={pseudo}
         roomName={roomName}
         onExit={handleLeave}
+        onRestart={handleRestart}
+        hasOpponent={!!opponent}
+        iAmReadyToRestart={me?.readyToRestart ?? false}
+        opponentReadyToRestart={opponent?.readyToRestart ?? false}
       />
     );
   }

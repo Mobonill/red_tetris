@@ -23,6 +23,7 @@ export class Player {
   isConnected: boolean;
   pieceIndex: number;
   alive: boolean;
+  readyToRestart: boolean;
 
   constructor(socketId: string, name: string, isHost: boolean = false) {
     this.id = socketId;
@@ -33,5 +34,6 @@ export class Player {
     this.isHost = isHost;
     this.pieceIndex = 0;
     this.alive = true;
+    this.readyToRestart = false;
   }
 }

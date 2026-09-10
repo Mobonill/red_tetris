@@ -21,6 +21,7 @@ export class MultiGame extends RoomMulti {
       player.grid.clearGrid();
       player.pieceIndex = 0;
       player.alive = true;
+      player.readyToRestart = false;
       this.isLocked.set(player.id, false);
       player.piece = this.spawnPieceForPlayer(player);
     }

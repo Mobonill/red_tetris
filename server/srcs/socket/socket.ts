@@ -42,6 +42,29 @@ function endMultiGameIfOver(io: Server, room: MultiGame) {
     });
 }
 
+function beginMatch(io: Server, room: MultiGame, roomName: string) {
+  room.startGame();
+  io.to(roomName).emit("room_update", room.players);
+  io.to(roomName).emit("game_started");
+  console.log(`Game started in room: ${roomName}`);
+
+  const timer = setInterval(() => {
+    for (const player of room.players) {
+      if (player.alive) room.timerClock(player.id);
+    }
+
+    endMultiGameIfOver(io, room);
+    if (!room.inProgress) return;
+
+    for (const player of room.players) {
+      if (player.alive) {
+        io.to(player.id).emit("state", room.getStateForPlayer(player.id));
+      }
+    }
+  }, 1200);
+  roomTimers.set(roomName, timer);
+}
+
 export function initSocket(io: Server) {
   io.on("connection", (socket) => {
     console.log("user connected: ", socket.id);
@@ -117,6 +140,7 @@ export function initSocket(io: Server) {
 
         const leavingPlayer = room.players.find((p) => p.id === socket.id);
         const wasHost = leavingPlayer?.isHost;
+        const wasInProgress = room.inProgress;
 
         room.players = room.players.filter((p) => p.id !== socket.id);
         console.log(`room length : ${room.players.length}`);
@@ -129,7 +153,10 @@ export function initSocket(io: Server) {
           }
         }
         io.to(data.roomName).emit("room_update", room.players);
-        if (room.inProgress) endMultiGameIfOver(io, room);
+
+        if (wasInProgress) {
+          endMultiGameIfOver(io, room);
+        }
       });
     });
 
@@ -145,29 +172,23 @@ export function initSocket(io: Server) {
           room.players.length === 2 &&
           !room.inProgress
         ) {
-          room.startGame();
-          io.to(roomName).emit("game_started");
-          console.log(`Game started in room: ${roomName}`);
-
-          const timer = setInterval(() => {
-            for (const player of room.players) {
-              if (player.alive) room.timerClock(player.id);
-            }
-
-            endMultiGameIfOver(io, room);
-            if (!room.inProgress) return;
-
-            for (const player of room.players) {
-              if (player.alive) {
-                io.to(player.id).emit(
-                  "state",
-                  room.getStateForPlayer(player.id),
-                );
-              }
-            }
-          }, 1200);
-          roomTimers.set(roomName, timer);
+          beginMatch(io, room, roomName);
         }
+      }
+    });
+
+    socket.on("restart_game", (roomName: string) => {
+      const room = activeMultiRooms.get(roomName);
+      if (!room) return;
+
+      const player = room.players.find((p) => p.id === socket.id);
+      if (!player || room.inProgress || room.players.length !== 2) return;
+
+      player.readyToRestart = true;
+      io.to(roomName).emit("room_update", room.players);
+
+      if (room.players.every((p) => p.readyToRestart)) {
+        beginMatch(io, room, roomName);
       }
     });
 
@@ -179,6 +200,7 @@ export function initSocket(io: Server) {
 
       const leavingPlayer = roomToLeave.players.find((p) => p.id === socket.id);
       const wasHost = leavingPlayer?.isHost;
+      const wasInProgress = roomToLeave.inProgress;
 
       roomToLeave.players = roomToLeave.players.filter(
         (p) => p.id !== socket.id,
@@ -194,6 +216,10 @@ export function initSocket(io: Server) {
         }
       }
       io.to(roomNameToLeave).emit("room_update", roomToLeave.players);
+
+      if (wasInProgress) {
+        endMultiGameIfOver(io, roomToLeave);
+      }
     });
   });
 }

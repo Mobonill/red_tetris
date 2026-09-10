@@ -22,9 +22,22 @@ interface GameProps {
   pseudo: string;
   roomName?: string; // Only needed for multi
   onExit?: () => void; // Only used for multi's post-game button
+  onRestart?: () => void; // Only used for multi's post-game button
+  hasOpponent?: boolean; // Only used for multi: is there still someone to restart with
+  iAmReadyToRestart?: boolean;
+  opponentReadyToRestart?: boolean;
 }
 
-export default function Game({ mode, pseudo, roomName, onExit }: GameProps) {
+export default function Game({
+  mode,
+  pseudo,
+  roomName,
+  onExit,
+  onRestart,
+  hasOpponent,
+  iAmReadyToRestart,
+  opponentReadyToRestart,
+}: GameProps) {
   const [grid, setGrid] = useState<Grid2D>([]);
   const [pieceData, setPieceData] = useState<PieceData | null>(null);
   const [result, setResult] = useState<"playing" | "won" | "lost">("playing");
@@ -38,23 +51,34 @@ export default function Game({ mode, pseudo, roomName, onExit }: GameProps) {
       socket.emit("join_solo", { name: pseudo });
     }
 
-    socket.on("state", (data) => {
+    const handleState = (data: PieceData & { grid: Grid2D }) => {
       setGrid(data.grid);
       setPieceData(data);
-    });
-
-    socket.on("game_over", () => {
+    };
+    const handleGameOver = () => {
       setResult("lost");
-    });
-
-    socket.on("game_won", () => {
+    };
+    const handleGameWon = () => {
       setResult("won");
-    });
+    };
+    const handleGameStarted = () => {
+      setResult("playing");
+      setGrid([]);
+      setPieceData(null);
+    };
+
+    socket.on("state", handleState);
+    socket.on("game_over", handleGameOver);
+    socket.on("game_won", handleGameWon);
+    socket.on("game_started", handleGameStarted);
 
     return () => {
-      socket.off("state");
-      socket.off("game_over");
-      socket.off("game_won");
+      // socket.off(event) with no handler would also strip Multi.tsx's own
+      // "game_started" listener, since they share the same socket singleton.
+      socket.off("state", handleState);
+      socket.off("game_over", handleGameOver);
+      socket.off("game_won", handleGameWon);
+      socket.off("game_started", handleGameStarted);
     };
   }, [mode, pseudo, roomName]);
 
@@ -119,6 +143,16 @@ export default function Game({ mode, pseudo, roomName, onExit }: GameProps) {
       {result !== "playing" && mode === "solo" && (
         <button onClick={restart}>Rejouer</button>
       )}
+      {result !== "playing" &&
+        mode === "multi" &&
+        hasOpponent &&
+        onRestart &&
+        !iAmReadyToRestart && <button onClick={onRestart}>Restart</button>}
+      {result !== "playing" &&
+        mode === "multi" &&
+        hasOpponent &&
+        iAmReadyToRestart &&
+        !opponentReadyToRestart && <p>Waiting for opponent to restart...</p>}
       {result !== "playing" && mode === "multi" && onExit && (
         <button onClick={onExit}>Leave Room</button>
       )}
