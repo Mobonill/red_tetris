@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { LightUpBlocks, TetrisTitle } from "../components/Background";
 import "../styles/solo.css";
 import Game from "../components/Game";
 import socket from "../socket";
@@ -75,25 +76,31 @@ function Multi() {
   const isHost = me?.isHost ?? false;
 
   return (
-    <div className="app-container">
-      <h2>Room: {roomName}</h2>
-      <div>
-        <h3>Players ({players.length}/2)</h3>
-      </div>
-      {isHost ? (
-        <button
-          className="menu-button"
-          onClick={handleStart}
-          disabled={players.length < 2}
-        >
-          {players.length < 2 ? "Waiting for 2nd player..." : "Start Game"}
+    <div className="page">
+      <div className="login-page">
+        <LightUpBlocks />
+        <div className="page-title">
+          <TetrisTitle />
+        </div>
+        <div className="app-container">
+          <h2>Room: {roomName}</h2>
+          <h3>Players ({players.length}/2)</h3>
+        </div>
+        {isHost ? (
+          <button
+            className="menu-button"
+            onClick={handleStart}
+            disabled={players.length < 2}
+          >
+            {players.length < 2 ? "Waiting for 2nd player..." : "Start Game"}
+          </button>
+        ) : (
+          <h4>Waiting for host to start the game...</h4>
+        )}
+        <button className="menu-button" onClick={handleLeave}>
+          Leave Room
         </button>
-      ) : (
-        <h4>Waiting for host to start the game...</h4>
-      )}
-      <button className="menu-button" onClick={handleLeave}>
-        Leave Room
-      </button>
+      </div>
     </div>
   );
 }
