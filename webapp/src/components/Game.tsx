@@ -20,8 +20,8 @@ import type { PieceData } from "../types/PieceData";
 interface GameProps {
   mode: "solo" | "multi";
   pseudo: string;
-  roomName?: string; // Only needed for multi
-  onExit?: () => void; // Only used for multi's post-game button
+  roomName?: string; // only needed for multi
+  onExit?: () => void; // only used for multi's post-game button
 }
 
 export default function Game({ mode, pseudo, roomName, onExit }: GameProps) {
@@ -33,10 +33,16 @@ export default function Game({ mode, pseudo, roomName, onExit }: GameProps) {
 
   // receive state and put it on screen
   useEffect(() => {
-    if (mode === "solo" && !hasJoined.current) {
-      hasJoined.current = true;
-      socket.emit("join_solo", { name: pseudo });
-    }
+    const handleConnect = () => {
+      if (mode === "solo" && !hasJoined.current) {
+        hasJoined.current = true;
+        socket.emit("join_solo", { name: pseudo });
+      }
+    };
+
+    socket.on("connect", handleConnect);
+    // if already connected, it join immediately
+    if (socket.connected) handleConnect();
 
     socket.on("state", (data) => {
       setGrid(data.grid);
@@ -52,6 +58,7 @@ export default function Game({ mode, pseudo, roomName, onExit }: GameProps) {
     });
 
     return () => {
+      socket.off("connect", handleConnect);
       socket.off("state");
       socket.off("game_over");
       socket.off("game_won");
@@ -87,10 +94,13 @@ export default function Game({ mode, pseudo, roomName, onExit }: GameProps) {
   }, [result]);
 
   const restart = () => {
-    socket.disconnect();
-    socket.connect();
-    setResult("playing");
-  };
+  setGrid([]);
+  setPieceData(null);
+  setResult("playing");
+  hasJoined.current = false;
+  socket.disconnect();
+  socket.connect(); // will launch handleConnect -> join_solo
+};
 
   return (
     <div className="game-container">

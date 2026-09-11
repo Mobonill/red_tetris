@@ -52,6 +52,8 @@ export function initSocket(io: Server) {
       room.players.push(player);
       player.piece = room.spawnPiece();
 
+      socket.emit("state", room.getState());
+
       const timer = setInterval(() => {
         const result = room.timerClock();
         if (result === "game_over") socket.emit("game_over");

@@ -71,6 +71,13 @@ export class SoloGame extends RoomSolo {
 
       case " ": {
         if (this.isLocked || this.gameOver) return "game_over";
+
+        // if the piece is not valid from the spawnm it's game over, not a hard drop
+        if (!player.grid.isPiecePositionValid(player.piece)) {
+          this.gameOver = true;
+          return "game_over";
+        }
+
         this.isLocked = true;
         while (player.grid.isPiecePositionValid(player.piece)) {
           player.piece.moveDown();
@@ -78,9 +85,13 @@ export class SoloGame extends RoomSolo {
         player.piece.moveUp();
         player.grid.lockPiece(player.piece);
         player.grid.clearLines();
+
         const nextPiece = this.spawnPiece();
         if (!player.grid.isPiecePositionValid(nextPiece)) {
-          // clearInterval(timer);
+          this.gameOver = true;
+          this.isLocked = false;
+          player.piece = nextPiece;
+          return "game_over";
         }
         player.piece = nextPiece;
         this.isLocked = false;
@@ -108,7 +119,7 @@ export class SoloGame extends RoomSolo {
       if (!player.grid.isPiecePositionValid(player.piece)) {
         this.gameOver = true;
         this.isLocked = false;
-        return "continue";
+        return "game_over";
       }
       this.isLocked = false;
     }

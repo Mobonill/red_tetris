@@ -49,6 +49,18 @@ export abstract class RoomSolo {
   spawnPiece(): Pieces {
     const type = this.getNextPiece();
     console.log("next piece:", type);
-    return Pieces.fromType(type);
+    const piece = Pieces.fromType(type);
+
+    // for empty padding lines on the top of a piece
+    const shape = piece.getCurrentShape();
+    let topPadding = 0;
+    for (const row of shape) {
+      if (row.every((cell) => cell === 0)) topPadding++;
+      else break;
+    }
+    console.log("next piece:", type, "topPadding:", topPadding, "y:", -topPadding);
+    piece.position.y = -topPadding;
+
+    return piece;
   }
 }
