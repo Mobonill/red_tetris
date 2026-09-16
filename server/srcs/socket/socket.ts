@@ -33,7 +33,12 @@ function endMultiGameIfOver(io: Server, room: MultiGame) {
   }
 
   if (alivePlayers.length === 1) {
-    io.to(alivePlayers[0].id).emit("game_won");
+    const winner = alivePlayers[0];
+    // Whichever path ended the match, this may be the winner's only chance
+    // to see the opponent's board flip to fully grey before the tick loop
+    // stops for good.
+    io.to(winner.id).emit("state", room.getStateForPlayer(winner.id));
+    io.to(winner.id).emit("game_won");
   }
   room.players
     .filter((p) => !p.alive)
@@ -50,17 +55,15 @@ function beginMatch(io: Server, room: MultiGame, roomName: string) {
 
   const timer = setInterval(() => {
     for (const player of room.players) {
-      if (player.alive) room.timerClock(player.id);
+      if (!player.alive) continue;
+      room.timerClock(player.id);
+      // Emitted even if this tick just made them top out, so their client
+      // renders the final locked board (with the piece that ended it)
+      // before "game_over" arrives.
+      io.to(player.id).emit("state", room.getStateForPlayer(player.id));
     }
 
     endMultiGameIfOver(io, room);
-    if (!room.inProgress) return;
-
-    for (const player of room.players) {
-      if (player.alive) {
-        io.to(player.id).emit("state", room.getStateForPlayer(player.id));
-      }
-    }
   }, 1200);
   roomTimers.set(roomName, timer);
 }
@@ -125,6 +128,9 @@ export function initSocket(io: Server) {
         if (!room || !room.inProgress) return;
         const result = room.handleMove(socket.id, direction);
         if (result === "game_over") {
+          // Same reasoning as the tick loop: send the final locked board
+          // before "game_over" so the last piece isn't missing on screen.
+          socket.emit("state", room.getStateForPlayer(socket.id));
           endMultiGameIfOver(io, room);
         } else if (result === "continue") {
           socket.emit("state", room.getStateForPlayer(socket.id));

@@ -92,12 +92,21 @@ export default function Game({
     if (!pieceData) return merged;
     const shape = pieceData.shape;
 
+    // Never overwrite an already-locked cell: a losing spawn attempt can
+    // overlap the stack, and only its non-colliding cells should show, at
+    // their real position (not shifted, not dropped a whole row at a time).
     shape.forEach((row, dy) => {
       row.forEach((cell, dx) => {
         if (cell !== 0) {
           const newY = pieceData.position.y + dy;
           const newX = pieceData.position.x + dx;
-          if (newY >= 0 && newY < 20 && newX >= 0 && newX < 10)
+          if (
+            newY >= 0 &&
+            newY < 20 &&
+            newX >= 0 &&
+            newX < 10 &&
+            merged[newY][newX] === 0
+          )
             merged[newY][newX] = cell;
         }
       });

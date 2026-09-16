@@ -90,6 +90,27 @@ export class Grid {
     return false;
   }
 
+  // Same as isPiecePositionValid, but a cell above row 0 (y < 0, the hidden
+  // buffer real Tetris spawns pieces in) never blocks. Used to let a piece
+  // that can't fully fit still settle as far down as it can, so only the
+  // part that's actually inside the board ends up visible.
+  isPiecePositionValidAllowingOverflow(piece: Pieces): boolean {
+    const x = piece.position.x;
+    const y = piece.position.y;
+    const shape = piece.getCurrentShape();
+
+    return shape.every((row, dy) => {
+      return row.every((cell, dx) => {
+        if (cell !== 0) {
+          const py = y + dy;
+          if (py < 0) return true;
+          if (!this.isValidPosition(x + dx, py)) return false;
+        }
+        return true;
+      });
+    });
+  }
+
   clearLines() {
     const newGrid = this.grid.filter((row) => !row.every((cell) => cell !== 0));
     const cleanedLines = this.rows - newGrid.length;
