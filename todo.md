@@ -7,10 +7,14 @@
 - last piece not showed when loosing---------ok
 - not showing last piece on opponent screen-----ok
 
-- multi room handling
+- multi room handling -------------------------ok
 
 - refreshing in room
 - true random seed
+
+
+
+
 
 - scoring
 - db bonus
