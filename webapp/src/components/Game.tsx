@@ -41,6 +41,7 @@ export default function Game({
   const [grid, setGrid] = useState<Grid2D>([]);
   const [pieceData, setPieceData] = useState<PieceData | null>(null);
   const [result, setResult] = useState<"playing" | "won" | "lost">("playing");
+  const [opponentRows, setOpponentRows] = useState<boolean[]>([]);
 
   const hasJoined = useRef(false); // to not have x2 components like 2 solo games
 
@@ -51,9 +52,12 @@ export default function Game({
       socket.emit("join_solo", { name: pseudo });
     }
 
-    const handleState = (data: PieceData & { grid: Grid2D }) => {
+    const handleState = (
+      data: PieceData & { grid: Grid2D; opponentRows?: boolean[] },
+    ) => {
       setGrid(data.grid);
       setPieceData(data);
+      setOpponentRows(data.opponentRows ?? []);
     };
     const handleGameOver = () => {
       setResult("lost");
@@ -65,6 +69,7 @@ export default function Game({
       setResult("playing");
       setGrid([]);
       setPieceData(null);
+      setOpponentRows([]);
     };
 
     socket.on("state", handleState);
@@ -118,22 +123,46 @@ export default function Game({
 
   return (
     <div className="game-container">
-      <div className="grid">
-        {getMergedGrid().map((row, y) => (
-          <div key={y} className="row">
-            {row.map((cell, x) => (
-              <div
-                key={x}
-                className="cell"
-                style={{
-                  backgroundColor: cell
-                    ? Pieces.COLORS[cell as PieceType]
-                    : "black",
-                }}
-              />
+      <div className="boards">
+        <div className="board">
+          <div className="grid">
+            {getMergedGrid().map((row, y) => (
+              <div key={y} className="row">
+                {row.map((cell, x) => (
+                  <div
+                    key={x}
+                    className="cell"
+                    style={{
+                      backgroundColor: cell
+                        ? Pieces.COLORS[cell as PieceType]
+                        : "black",
+                    }}
+                  />
+                ))}
+              </div>
             ))}
           </div>
-        ))}
+        </div>
+        {mode === "multi" && (
+          <div className="board opponent-board">
+            <p className="board-label">Opponent</p>
+            <div className="grid">
+              {Array.from({ length: 20 }, (_, y) => (
+                <div key={y} className="row">
+                  {Array.from({ length: 10 }, (_, x) => (
+                    <div
+                      key={x}
+                      className="cell"
+                      style={{
+                        backgroundColor: opponentRows[y] ? "grey" : "black",
+                      }}
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       {result !== "playing" && (
         <div className="game-over">

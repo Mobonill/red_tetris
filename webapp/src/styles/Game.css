@@ -1,3 +1,19 @@
+.boards {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.board-label {
+  text-align: center;
+  margin: 0 0 4px;
+}
+
+.opponent-board .cell {
+  width: 12px;
+  height: 12px;
+}
+
 .grid {
   display: flex;
   flex-direction: column;

@@ -11,6 +11,14 @@
 /* ************************************************************************** */
 
 import { RoomMulti } from "./roomMulti.js";
+import type { Grid2D } from "./types.js";
+
+// Which rows actually contain at least one locked block, at their real
+// position. Used to show the opponent only a grey silhouette of the stack's
+// shape, not the actual board content (piece colors, columns, gaps).
+function getOccupiedRows(grid: Grid2D): boolean[] {
+  return grid.map((row) => row.some((cell) => cell !== 0));
+}
 
 export class MultiGame extends RoomMulti {
   inProgress = false;
@@ -32,11 +40,14 @@ export class MultiGame extends RoomMulti {
     const player = this.players.find((p) => p.id === playerId);
     if (!player || !player.piece) return;
 
+    const opponent = this.players.find((p) => p.id !== playerId);
+
     return {
       grid: player.grid.getGrid(),
       shape: player.piece.getCurrentShape(),
       position: player.piece.getPosition(),
       color: player.piece.getColor(),
+      opponentRows: opponent ? getOccupiedRows(opponent.grid.getGrid()) : [],
     };
   }
 
