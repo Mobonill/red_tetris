@@ -14,7 +14,7 @@ function Login() {
 
   const goHome = () => {
     if (!pseudo.trim()) return alert("Entre un pseudo");
-    localStorage.setItem("pseudo", pseudo);
+    sessionStorage.setItem("pseudo", pseudo);
     navigate("/home");
   };
 

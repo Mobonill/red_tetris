@@ -9,7 +9,9 @@
 
 - multi room handling -------------------------ok
 
-- refreshing in room
+- refreshing in room --------------------------ok
+- pseudo changing ----------------------------ok
+
 - true random seed
 
 

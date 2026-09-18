@@ -4,7 +4,7 @@ import "../styles/Home.css";
 import { LightUpBlocks, TetrisTitle } from "../components/Background";
 
 function Home() {
-  const [pseudo] = useState(() => localStorage.getItem("pseudo") ?? "");
+  const [pseudo] = useState(() => sessionStorage.getItem("pseudo") ?? "");
   const [roomName, setRoomName] = useState("");
   const navigate = useNavigate();
 
