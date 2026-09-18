@@ -28,6 +28,15 @@ export class RoomMulti {
     return piecesTab;
   }
 
+  // The sequence is seeded once at room creation, which only randomizes the
+  // very first match -- every restart resets each player's index back to 0
+  // but replays this same array unless it's reseeded here too. Call this
+  // whenever a match actually begins (first start and every restart) so
+  // each one gets its own fresh, independent piece order.
+  resetPieceSequence(): void {
+    this.pieceSequence = this._generateBag();
+  }
+
   // Fetch a piece at a specific index.
   // If a player reaches the end of the known sequence, we generate another bag for everyone.
   getPieceAt(index: number): PieceType {

@@ -12,7 +12,7 @@
 - refreshing in room --------------------------ok
 - pseudo changing ----------------------------ok
 
-- true random seed
+- game launch seed instead of room creation ----ok
 
 
 

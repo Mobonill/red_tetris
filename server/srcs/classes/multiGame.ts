@@ -38,6 +38,7 @@ export class MultiGame extends RoomMulti {
   private isLocked = new Map<string, boolean>();
 
   startGame(): void {
+    this.resetPieceSequence();
     for (const player of this.players) {
       player.grid.clearGrid();
       player.pieceIndex = 0;
