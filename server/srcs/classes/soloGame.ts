@@ -3,19 +3,25 @@
 /*                                                        :::      ::::::::   */
 /*   soloGame.ts                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/20 15:47:08 by morgane           #+#    #+#             */
-/*   Updated: 2026/09/10 13:40:18 by morgane          ###   ########.fr       */
+/*   Updated: 2026/11/10 18:41:00 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { RoomSolo } from "./roomSolo.js";
+import { saveScore } from "../db/directus.js";
+
+// points according to the number of lines cleared at the same time
+const POINTS = [0, 100, 300, 500, 800];
 
 export class SoloGame extends RoomSolo {
   private gameOver = false;
   private isLocked = false;
   private timer: ReturnType<typeof setInterval> | null = null;
+  private score = 0;
+  private lines = 0;
 
   getState() {
     const player = this.players[0];
@@ -26,10 +32,35 @@ export class SoloGame extends RoomSolo {
       shape: player.piece.getCurrentShape(),
       position: player.piece.getPosition(),
       color: player.piece.getColor(),
+      score: this.score,
+      lines: this.lines,
     };
   }
 
+  // to clear won lines when they are complete
+  private addClearedLines(cleared: number): void{
+    this.lines += cleared;
+    this.score += POINTS[cleared] ?? 0;
+  }
+
+  // to save the score at the end of the game
+  private endGame(): "game_over" {
+    if (!this.gameOver) {
+      this.gameOver = true;
+      this.isLocked = false;
+      const player = this.players[0];
+      void saveScore({
+        player_name: player.name,
+        score: this.score,
+        lines: this.lines
+      });
+    }
+    return "game_over";
+  }
+
   handleMove(direction: string): "game_over" | "continue" | "error" {
+    if (this.gameOver) return "game_over";
+
     const player = this.players[0];
     if (!player.piece) return "error";
 
@@ -54,7 +85,6 @@ export class SoloGame extends RoomSolo {
 
       case "ArrowUp":
         player.piece.rotate();
-        console.log("ROTATION");
         if (!player.grid.isPiecePositionValid(player.piece)) {
           player.piece.moveLeft();
           if (!player.grid.isPiecePositionValid(player.piece)) {
@@ -63,20 +93,16 @@ export class SoloGame extends RoomSolo {
             if (!player.grid.isPiecePositionValid(player.piece)) {
               player.piece.moveLeft();
               player.piece.unrotate();
-              console.log("UNROTATE");
             }
           }
         }
         break;
 
       case " ": {
-        if (this.isLocked || this.gameOver) return "game_over";
+        if (this.isLocked) return "continue";
 
-        // if the piece is not valid from the spawnm it's game over, not a hard drop
-        if (!player.grid.isPiecePositionValid(player.piece)) {
-          this.gameOver = true;
-          return "game_over";
-        }
+        // if the piece is not valid from the spawn, it's game over, not a hard drop
+        if (!player.grid.isPiecePositionValid(player.piece)) return this.endGame();
 
         this.isLocked = true;
         while (player.grid.isPiecePositionValid(player.piece)) {
@@ -84,16 +110,12 @@ export class SoloGame extends RoomSolo {
         }
         player.piece.moveUp();
         player.grid.lockPiece(player.piece);
-        player.grid.clearLines();
+        this.addClearedLines(player.grid.clearLines());
 
         const nextPiece = this.spawnPiece();
-        if (!player.grid.isPiecePositionValid(nextPiece)) {
-          this.gameOver = true;
-          this.isLocked = false;
-          player.piece = nextPiece;
-          return "game_over";
-        }
         player.piece = nextPiece;
+        if (!player.grid.isPiecePositionValid(nextPiece)) return this.endGame();
+
         this.isLocked = false;
         return "continue";
       }
@@ -102,25 +124,20 @@ export class SoloGame extends RoomSolo {
   }
 
   timerClock(): "continue" | "game_over" | "error" {
+    if (this.gameOver) return "game_over";
+
     const player = this.players[0];
     if (!player.piece) return "error";
 
-    if (this.gameOver) {
-      return "game_over";
-    }
     player.piece.moveDown();
     if (!player.grid.isPiecePositionValid(player.piece)) {
       player.piece.moveUp();
       if (this.isLocked) return "continue";
       this.isLocked = true;
       player.grid.lockPiece(player.piece);
-      player.grid.clearLines();
+      this.addClearedLines(player.grid.clearLines());
       player.piece = this.spawnPiece();
-      if (!player.grid.isPiecePositionValid(player.piece)) {
-        this.gameOver = true;
-        this.isLocked = false;
-        return "game_over";
-      }
+      if (!player.grid.isPiecePositionValid(player.piece)) return this.endGame();
       this.isLocked = false;
     }
     return "continue";
