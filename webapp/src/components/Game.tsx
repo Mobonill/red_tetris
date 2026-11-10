@@ -13,7 +13,6 @@
 import { useState, useEffect, useRef } from "react";
 import socket from "../socket";
 import "../styles/Game.css";
-import { Pieces } from "../../../server/srcs/classes/pieces";
 import type { Grid2D, PieceType } from "../../../server/srcs/classes/types";
 import type { PieceData } from "../types/PieceData";
 

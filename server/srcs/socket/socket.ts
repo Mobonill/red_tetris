@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   socket.ts                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/20 12:19:13 by morgane           #+#    #+#             */
-/*   Updated: 2026/03/20 17:00:22 by morgane          ###   ########.fr       */
+/*   Updated: 2026/11/10 17:53:46 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ export function initSocket(io: Server) {
       socket.on("move", (direction: string) => {
         const result = room.handleMove(direction);
         if (result === "game_over") socket.emit("game_over");
-        else if (result === "error") socket._error("Error: ");
+        else if (result === "error") socket.emit("error_message", "Invalid move");
         else socket.emit("state", room.getState());
       });
 
