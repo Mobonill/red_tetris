@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   grid.ts                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/05 16:06:39 by morgane           #+#    #+#             */
-/*   Updated: 2026/03/20 11:12:18 by morgane          ###   ########.fr       */
+/*   Updated: 2026/11/10 19:29:10 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,7 @@ export class Grid {
     return false;
   }
 
-  clearLines() {
+    clearLines(): number {
     const newGrid = this.grid.filter((row) => !row.every((cell) => cell !== 0));
     const cleanedLines = this.rows - newGrid.length;
     const addLines = Array.from({ length: cleanedLines }, () =>
@@ -98,5 +98,6 @@ export class Grid {
     );
 
     this.grid = [...addLines, ...newGrid];
+    return cleanedLines;
   }
 }
